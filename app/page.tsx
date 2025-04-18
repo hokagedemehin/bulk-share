@@ -5,16 +5,6 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 
 export default function Home() {
-  const [activeLink, setActiveLink] = useState("home");
-
-  const handleLinkClick = (link: string) => {
-    setActiveLink(link);
-  };
-  const [activeLink, setActiveLink] = useState("home");
-
-  const handleLinkClick = (link: string) => {
-    setActiveLink(link);
-  };
   return (
     <main className="">
       <header className="bg-gray-100 py-4 shadow-md dark:bg-gray-900">
