@@ -1,4 +1,4 @@
-# Bulk Buy
+# Bulk Share
 
 A platform that allows users to buy products in bulk at discounted prices. Users can create an account, browse available list, and join any available group. The platform also provides an admin panel for managing products and listings.
 

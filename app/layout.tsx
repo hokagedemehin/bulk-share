@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import "./globals.css";
+import ProjectProviders from "@/util/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +22,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Bulk Buy",
+  title: "Bulk Share",
   description: "Team up with people to buy in bulk and save money",
   robots: {
     index: true,
@@ -47,7 +49,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.className} antialiased`}
       >
-        {children}
+        <AppRouterCacheProvider>
+          <ProjectProviders>{children}</ProjectProviders>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );
