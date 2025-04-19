@@ -125,7 +125,7 @@ export default function Page() {
           padding: 0;
           margin-top: 4px;
 
-          & > span {
+          button > span {
             display: inline-block;
             padding: 12px 16px;
             border-radius: inherit;
