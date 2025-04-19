@@ -3,6 +3,8 @@ import { useCloseBackdrop, useOpenBackdrop } from "@/hooks/backdrop";
 import { Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import CountUp from "react-countup";
+
 export default function Home() {
   useCloseBackdrop();
   const handleOpenBackdrop = useOpenBackdrop();
@@ -49,6 +51,45 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* success cards */}
+      <div className="container mx-auto my-10">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex h-[15vh] flex-col items-center justify-center rounded-xl bg-gray-100 p-4 dark:bg-gray-900">
+            <CountUp
+              start={0}
+              end={102}
+              duration={2}
+              className="font-poppins text-center text-xl font-bold text-gray-900 lg:text-3xl dark:text-white"
+            />
+            <Typography className="font-poppins text-center text-sm text-gray-700 lg:text-base dark:text-gray-300">
+              Groups Created
+            </Typography>
+          </div>
+          <div className="flex h-[15vh] flex-col items-center justify-center rounded-xl bg-gray-100 p-4 dark:bg-gray-900">
+            <CountUp
+              start={0}
+              end={215}
+              duration={2}
+              className="font-poppins text-center text-xl font-bold text-gray-900 lg:text-3xl dark:text-white"
+            />
+            <Typography className="font-poppins text-center text-sm text-gray-700 lg:text-base dark:text-gray-300">
+              people joined
+            </Typography>
+          </div>
+          <div className="flex h-[15vh] flex-col items-center justify-center rounded-xl bg-gray-100 p-4 dark:bg-gray-900">
+            <CountUp
+              start={0}
+              end={329}
+              duration={2}
+              className="font-poppins text-center text-xl font-bold text-gray-900 lg:text-3xl dark:text-white"
+            />
+
+            <Typography className="font-poppins text-center text-sm text-gray-700 lg:text-base dark:text-gray-300">
+              Products Shared
+            </Typography>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
