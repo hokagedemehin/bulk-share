@@ -28,7 +28,7 @@ export default function MainLayout({
   const handleOpenBackdrop = useOpenBackdrop();
   const [authenticated, setAuthenticated] = useState(false);
 
-  console.log("authenticated", authenticated);
+// Removed unnecessary debug logging statement.
 
   useEffect(() => {
     const user = localStorage.getItem("bulk-share-email");
