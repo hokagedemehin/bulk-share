@@ -80,7 +80,7 @@ const CreateNewItem = () => {
                     >
                       <TextField
                         {...field}
-                        label="First name"
+                        label="Name"
                         variant="filled"
                         fullWidth
                         error={!!errors.name}
