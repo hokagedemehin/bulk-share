@@ -7,13 +7,15 @@ import { useAppSelector } from "@/util/store/store";
 const CustomBackdrop = () => {
   const { open } = useAppSelector((state) => state.backdrop);
   return (
-    <div>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 2 }}
-        open={open}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
+    <div className="">
+      {open && (
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 2 }}
+          open={open}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
     </div>
   );
 };
