@@ -11,7 +11,7 @@ const schema = a.schema({
     .model({
       content: a.string(),
     })
-    .authorization((allow) => [allow.guest()]),
+    .authorization((allow) => [allow.publicApiKey()]),
 
   // new model for list items
   ListItem: a
@@ -22,8 +22,22 @@ const schema = a.schema({
         long: a.string(),
       }),
       price: a.float().required(),
+      isDigital: a.boolean().default(false),
+      currency: a.string().default("USD"),
+      country: a.string(),
+      state: a.string(),
+      location: a.string(),
+      coverImage: a.string(),
+      otherImage: a.json(),
+      userSub: a.string(),
+      peopleRequired: a.integer(),
+      members: a.json(),
     })
-    .authorization((allow) => [allow.guest()]),
+    .authorization((allow) => [
+      // allow.guest(),
+      // allow.authenticated(),
+      allow.publicApiKey(),
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -31,8 +45,14 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: "iam",
+    defaultAuthorizationMode: "apiKey",
+    apiKeyAuthorizationMode: {
+      expiresInDays: 365,
+    },
   },
+  // authorizationModes: {
+  //   defaultAuthorizationMode: "identityPool",
+  // },
 });
 
 /*== STEP 2 ===============================================================
