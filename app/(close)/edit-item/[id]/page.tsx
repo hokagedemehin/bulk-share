@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { use, useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
 import { BackRouter, PushRouter } from "@/util/helpers/routers";
@@ -30,8 +30,9 @@ import {
   setCloseBackdrop,
   setOpenBackdrop,
 } from "@/util/store/slice/backdropSlice";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { useSharedItems } from "@/hooks/items";
 import dayjs from "dayjs";
+import { DateTimePicker } from "@mui/x-date-pickers";
 
 const client = generateClient<Schema>();
 
@@ -47,11 +48,14 @@ const MenuProps = {
   },
 };
 
-const CreateNewItem = () => {
+const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = use(params);
   useCloseBackdrop();
   const app_dispatch = useAppDispatch();
   const pushRouter = PushRouter();
   const backRouter = BackRouter();
+
+  const { getSingleItem } = useSharedItems();
 
   /*********************************************
    * USER DETAILS
@@ -149,6 +153,7 @@ const CreateNewItem = () => {
    * **********************************************/
   const [itemImage, setItemImage] = useState<any>([]);
   const [itemImageUpload, setItemImageUpload] = useState<any>(null);
+  // console.log("itemImageUpload :>> ", itemImageUpload);
   const onDrop = useCallback((acceptedFiles: any) => {
     // Do something with the files
     setItemImageUpload(acceptedFiles[0]);
@@ -226,7 +231,6 @@ const CreateNewItem = () => {
    * **********************************************/
   const [moreImage2, setMoreImage2] = useState<any>([]);
   const [moreImageUpload2, setMoreImageUpload2] = useState<any>(null);
-  // console.log("moreImageUpload2 :>> ", moreImageUpload2);
   const onDrop2 = useCallback((acceptedFiles: any) => {
     // Do something with the files
     setMoreImageUpload2(acceptedFiles[0]);
@@ -307,6 +311,7 @@ const CreateNewItem = () => {
       isDigital: false,
       price: "",
       expiresAt: dayjs(dayjs().add(2, "day").toDate()),
+
       currency: "",
       country: "",
       state: "",
@@ -322,14 +327,14 @@ const CreateNewItem = () => {
   });
 
   useEffect(() => {
-    if (userDetails) {
-      setValue(
-        "contactName",
-        `${userDetails?.family_name} ${userDetails?.given_name}`,
-      );
-      setValue("contactEmail", userDetails?.email);
-      // setValue("contactPhone", userDetails?.phone_number);
-    }
+    // if (userDetails) {
+    //   setValue(
+    //     "contactName",
+    //     `${userDetails?.family_name} ${userDetails?.given_name}`,
+    //   );
+    //   setValue("contactEmail", userDetails?.email);
+    //   // setValue("contactPhone", userDetails?.phone_number);
+    // }
     const localCountry = localStorage.getItem("bulk_share_country");
     const localState = localStorage.getItem("bulk_share_state");
     const localCurrency = localStorage.getItem("bulk_share_currency");
@@ -347,11 +352,100 @@ const CreateNewItem = () => {
       setValue("currency", localCurrency);
     }
 
+    (async () => {
+      const itemDetails = await getSingleItem(id);
+      console.log("itemDetails :>> ", itemDetails);
+      if (itemDetails) {
+        setValue("itemName", itemDetails?.name || "");
+        setValue(
+          "shortDescription",
+          itemDetails.description ? itemDetails.description.short! : "",
+        );
+        setValue(
+          "longDescription",
+          itemDetails.description ? itemDetails.description.long! : "",
+        );
+        setValue("price", itemDetails?.price.toString() || "");
+        setValue(
+          "expiresAt",
+          itemDetails.expiresAt ? dayjs(itemDetails.expiresAt) : dayjs(),
+        );
+        setValue("isDigital", itemDetails.isDigital! || false);
+        setValue("currency", itemDetails.currency! || "");
+        setValue("country", itemDetails.country! || "");
+        setValue("state", itemDetails.state! || "");
+        setValue("location", itemDetails.location! || "");
+        setValue("contactMethod", itemDetails.contactMethod! || "");
+        setValue("contactEmail", itemDetails.contactEmail! || "");
+        setValue("contactPhone", itemDetails.contactPhone! || "");
+        setValue("contactName", itemDetails.contactName! || "");
+        setValue("peopleRequired", itemDetails.peopleRequired! || 0);
+        setItemImageUpload(itemDetails.coverImage);
+        setItemImage([
+          {
+            preview: itemDetails.coverImage,
+          },
+        ]);
+        if (itemDetails.otherImages) {
+          if (itemDetails.otherImages[0].trim() !== "") {
+            setMoreImageUpload1(itemDetails.otherImages[0]);
+            setMoreImage1([
+              {
+                preview: itemDetails.otherImages[0],
+              },
+            ]);
+          }
+
+          if (itemDetails.otherImages[1].trim() !== "") {
+            setMoreImageUpload2(itemDetails.otherImages[1]);
+            setMoreImage2([
+              {
+                preview: itemDetails.otherImages[1],
+              },
+            ]);
+          }
+        }
+        setSelectedOption({
+          emailSelected: itemDetails.contactMethod?.includes("email") || false,
+          phoneSelected: itemDetails.contactMethod?.includes("phone") || false,
+        });
+        setDigitalProduct(itemDetails.isDigital! || false);
+        setValue(
+          "emailSelected",
+          itemDetails.contactMethod?.includes("email") || false,
+        );
+        setValue(
+          "phoneSelected",
+          itemDetails.contactMethod?.includes("phone") || false,
+        );
+
+        setSelectedCountry(itemDetails.country! || "");
+        const filteredStates = country_states.filter(
+          (item: any) => item.name === itemDetails.country,
+        );
+        const tempArr: any = [];
+        if (filteredStates.length > 0) {
+          filteredStates.map((item: any) => {
+            item?.states.map((state: any) => {
+              tempArr.push({
+                id: state?.id,
+                label: state?.name,
+                value: state?.name,
+              });
+            });
+          });
+          setStateList(tempArr);
+        } else {
+          setStateList([]);
+        }
+      }
+    })();
+
     return () => {};
-  }, [userDetails, setValue]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userDetails, setValue, id]);
 
   const onSubmit = async (data: any) => {
-    console.log(data);
     if (!data.emailSelected && !data.phoneSelected) {
       setError("contactMethod", {
         type: "manual",
@@ -367,17 +461,27 @@ const CreateNewItem = () => {
       return;
     }
 
-    const coverURL = await uploadImage(itemImageUpload);
-    console.log("coverURL :>> ", coverURL);
-    if (!coverURL) {
-      enqueueSnackbar(
-        "Error with cover image, please try again with another image.",
-        {
-          variant: "error",
-        },
-      );
-      return;
+    let coverURL = "";
+    const isImageExist =
+      typeof itemImageUpload === "string" &&
+      itemImageUpload?.includes("https://");
+    if (!isImageExist) {
+      coverURL = await uploadImage(itemImageUpload);
+      console.log("coverURL :>> ", coverURL);
+      if (!coverURL) {
+        enqueueSnackbar(
+          "Error with cover image, please try again with another image.",
+          {
+            variant: "error",
+          },
+        );
+        return;
+      }
+    } else {
+      coverURL = itemImageUpload;
+      console.log("image already exist", coverURL);
     }
+
     let moreImage1URL = "";
     if (moreImageUpload1) {
       moreImage1URL = await uploadImage(moreImageUpload1);
@@ -398,15 +502,17 @@ const CreateNewItem = () => {
     try {
       app_dispatch(setOpenBackdrop());
 
-      const { data: listItems, errors } = await client.models.ListItem.create({
+      const { data: listItems, errors } = await client.models.ListItem.update({
+        id: id,
         name: data.itemName,
         description: {
           short: data.shortDescription,
           long: data.longDescription,
         },
         price: parseFloat(data.price),
+        expiresAt: data.expiresAt,
+
         isDigital: data.isDigital,
-        expiresAt: dayjs(data.expiresAt).toISOString(),
         currency: data.currency,
         country: data.country,
         state: data.state,
@@ -430,13 +536,13 @@ const CreateNewItem = () => {
           },
         ]),
       });
-      console.log("ListItem created", listItems);
+      console.log("ListItem updated", listItems);
 
       if (listItems) {
         localStorage.setItem("bulk_share_country", data.country);
         localStorage.setItem("bulk_share_state", data.state);
         localStorage.setItem("bulk_share_currency", data.currency);
-        enqueueSnackbar("Item created successfully", {
+        enqueueSnackbar("Item updated successfully", {
           variant: "success",
         });
         pushRouter("/my-list");
@@ -477,10 +583,10 @@ const CreateNewItem = () => {
           </IconButton>
         </div>
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Create Item</h1>
+          <h1 className="text-2xl font-bold">Edit Item</h1>
         </div>
         <p className="mt-2 text-sm text-gray-600 md:text-base">
-          Provide clear details about the item you want to create. This will
+          Provide clear details about the item you want to update. This will
           help others to understand your intent and collaborate effectively.
         </p>
         <div className="py-4">
@@ -1440,7 +1546,7 @@ const CreateNewItem = () => {
                 className="font-poppins w-[40%] rounded-xl normal-case md:w-[30%] lg:w-[20%]"
                 type="submit"
               >
-                Create Item
+                Update Item
               </Button>
             </div>
           </form>
@@ -1450,4 +1556,4 @@ const CreateNewItem = () => {
   );
 };
 
-export default CreateNewItem;
+export default EditItemPage;

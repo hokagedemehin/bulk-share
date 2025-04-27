@@ -6,13 +6,17 @@ import {
 } from "@/util/store/slice/backdropSlice";
 import { useAppDispatch } from "@/util/store/store";
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Fab,
+  Fade,
   IconButton,
   Paper,
+  useScrollTrigger,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -42,6 +46,8 @@ import { type Schema } from "@/amplify/data/resource";
 import { generateClient } from "aws-amplify/api";
 import { getAllISOCodes } from "iso-country-currency";
 import { enqueueSnackbar } from "notistack";
+import Link from "next/link";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 const client = generateClient<Schema>();
 const MyListPage = () => {
@@ -50,9 +56,50 @@ const MyListPage = () => {
   const router = useRouter();
   const currencyList = useMemo(() => getAllISOCodes(), []);
 
+  /********************************************
+   * BACK TO TOP BUTTON
+   ********************************************/
+  function ScrollTop() {
+    // const { children, window } = props;
+    // Note that you normally won't need to set the window ref as useScrollTrigger
+    // will default to window.
+    // This is only being set here because the demo is in an iframe.
+    const trigger = useScrollTrigger({
+      target: window,
+      disableHysteresis: true,
+      threshold: 100,
+    });
+
+    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+      const anchor = (
+        (event.target as HTMLDivElement).ownerDocument || document
+      ).querySelector("#back-to-top-anchor");
+
+      if (anchor) {
+        anchor.scrollIntoView({
+          block: "center",
+        });
+      }
+    };
+
+    return (
+      <Fade in={trigger}>
+        <Box
+          onClick={handleClick}
+          role="presentation"
+          sx={{ position: "fixed", bottom: 16, right: 16 }}
+        >
+          <Fab size="small" aria-label="scroll back to top">
+            <KeyboardArrowUpIcon />
+          </Fab>
+        </Box>
+      </Fade>
+    );
+  }
+
   // console.log("currencyList :>> ", currencyList);
 
-  const { getListItems } = useSharedItems();
+  const { getMyItems } = useSharedItems();
 
   const [myListItems, setMyListItems] = useState<Schema["ListItem"]["type"][]>(
     [],
@@ -60,11 +107,13 @@ const MyListPage = () => {
   // console.log("myListItems :>> ", myListItems);
 
   useEffect(() => {
-    const listSub1 = getListItems(setMyListItems);
+    (async () => {
+      const listSub1 = await getMyItems(setMyListItems);
+      return () => {
+        listSub1.unsubscribe();
+      };
+    })();
 
-    return () => {
-      listSub1.unsubscribe();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -136,8 +185,8 @@ const MyListPage = () => {
   };
 
   return (
-    <div className="px-2">
-      <section className="container mx-auto my-5">
+    <div className="">
+      <section className="container mx-auto my-5 px-3 md:px-1">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">My List</h1>
           <Button
@@ -156,7 +205,7 @@ const MyListPage = () => {
           This is the my list page. You can manage your list here.
         </p>
       </section>
-      <div className="">
+      <section className="px-3 md:px-1">
         {myListItems.length === 0 && (
           <section className="container mx-auto flex h-[50vh] flex-col items-center justify-center">
             <Image
@@ -247,28 +296,24 @@ const MyListPage = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        className="font-poppins rounded-xl normal-case"
+                      <Link
+                        href={`/edit-item/${item?.id}`}
+                        className="rounded-xl border border-sky-700 px-5 py-2 text-sm text-sky-700 transition duration-300 ease-in-out hover:bg-sky-50 dark:border-sky-500 dark:text-sky-500 dark:hover:bg-sky-50/10"
                         onClick={() => {
                           app_dispatch(setOpenBackdrop());
-                          router.push("/edit-item");
                         }}
                       >
                         Edit
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="success"
-                        className="font-poppins rounded-xl normal-case"
+                      </Link>
+                      <Link
+                        href={`/item/${item?.id}`}
+                        className="rounded-xl border border-green-700 px-5 py-2 text-sm text-green-700 transition duration-300 ease-in-out hover:bg-green-50 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-50/10"
                         onClick={() => {
                           app_dispatch(setOpenBackdrop());
-                          router.push("/view-item");
                         }}
                       >
                         View
-                      </Button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -276,7 +321,7 @@ const MyListPage = () => {
             ))}
           </section>
         )}
-      </div>
+      </section>
       {/* share dialog */}
       <Dialog
         open={openShareDialog}
@@ -437,6 +482,7 @@ const MyListPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ScrollTop />
     </div>
   );
 };

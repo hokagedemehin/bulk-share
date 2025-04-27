@@ -137,6 +137,13 @@
               "isRequired": true,
               "attributes": []
             },
+            "expiresAt": {
+              "name": "expiresAt",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "isDigital": {
               "name": "isDigital",
               "isArray": false,

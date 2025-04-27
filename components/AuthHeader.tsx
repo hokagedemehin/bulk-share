@@ -82,7 +82,10 @@ const AuthHeaderComp = () => {
   };
 
   return (
-    <header className="bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900">
+    <header
+      id="back-to-top-anchor"
+      className="fixed top-0 z-50 w-full bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900"
+    >
       {/* large screen */}
       <div className="container mx-auto hidden items-center justify-between md:flex">
         <div className="flex items-center">
@@ -117,15 +120,15 @@ const AuthHeaderComp = () => {
             </li>
             <li>
               <Link
-                href={"/shared-groups"}
+                href={"/shared-items"}
                 className={`font-poppins rounded-xl px-3 py-2 text-gray-900 transition duration-300 ease-in-out hover:bg-gray-200 dark:text-white hover:dark:bg-gray-800 ${
-                  pathname === "/shared-groups"
+                  pathname === "/shared-items"
                     ? "bg-gray-200 font-medium dark:bg-gray-800"
                     : ""
                 }`}
-                onClick={() => handleOpenBackdrop("/shared-groups")}
+                onClick={() => handleOpenBackdrop("/shared-items")}
               >
-                Shared groups
+                Shared Items
               </Link>
             </li>
             {userDetails ? (
@@ -185,7 +188,7 @@ const AuthHeaderComp = () => {
         </nav>
       </div>
       {/* small screen */}
-      <div className="container mx-auto md:hidden">
+      <div id="back-to-top-anchor" className="container mx-auto md:hidden">
         <div className="mx-2 flex items-center justify-between">
           <div className="flex items-center">
             <Image
@@ -246,6 +249,7 @@ const AuthHeaderComp = () => {
           </div>
           <nav className="mt-2 w-full">
             <List className="space-y-4">
+              {/* home */}
               <ListItem disablePadding>
                 <ListItemButton
                   href="/"
@@ -267,27 +271,93 @@ const AuthHeaderComp = () => {
                   />
                 </ListItemButton>
               </ListItem>
+              {/* shared items */}
               <ListItem disablePadding>
                 <ListItemButton
-                  href="/shared-groups"
+                  href="/shared-items"
                   className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
-                    pathname === "/shared-groups"
+                    pathname === "/shared-items"
                       ? "bg-gray-200 font-medium dark:bg-gray-800"
                       : ""
                   }`}
-                  onClick={() => handleOpenBackdrop("/shared-groups")}
+                  onClick={() => handleOpenBackdrop("/shared-items")}
                 >
                   <ListItemText
                     primary={
                       <Typography
                         className={`font-poppins w-full text-gray-900 dark:text-white`}
                       >
-                        Shared groups
+                        Shared Items
                       </Typography>
                     }
                   />
                 </ListItemButton>
               </ListItem>
+              {userDetails && (
+                <>
+                  {/* my list */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      href="/my-list"
+                      className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                        pathname === "/my-list"
+                          ? "bg-gray-200 font-medium dark:bg-gray-800"
+                          : ""
+                      }`}
+                      onClick={() => handleOpenBackdrop("/my-list")}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            className={`font-poppins w-full text-gray-900 dark:text-white`}
+                          >
+                            My List
+                          </Typography>
+                        }
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  {/* profile */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      href="/profile"
+                      className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                        pathname === "/profile"
+                          ? "bg-gray-200 font-medium dark:bg-gray-800"
+                          : ""
+                      }`}
+                      onClick={() => handleOpenBackdrop("/profile")}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            className={`font-poppins w-full text-gray-900 dark:text-white`}
+                          >
+                            Profile
+                          </Typography>
+                        }
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  {/* sign out */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      className={`hover:bg-gray-200 hover:dark:bg-gray-800`}
+                      onClick={handleSignOut}
+                    >
+                      <ListItemText
+                        primary={
+                          <Typography
+                            className={`font-poppins w-full text-gray-900 dark:text-white`}
+                          >
+                            Log out
+                          </Typography>
+                        }
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                </>
+              )}
             </List>
           </nav>
         </div>

@@ -22,6 +22,7 @@ const schema = a.schema({
         long: a.string(),
       }),
       price: a.float().required(),
+      expiresAt: a.string(),
       isDigital: a.boolean().default(false),
       currency: a.string().default("USD"),
       country: a.string(),

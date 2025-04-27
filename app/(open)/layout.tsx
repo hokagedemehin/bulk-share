@@ -6,6 +6,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  Toolbar,
   Typography,
 } from "@mui/material";
 import Image from "next/image";
@@ -110,15 +111,15 @@ export default function MainLayout({
                   </li>
                   <li>
                     <Link
-                      href={"/shared-groups"}
+                      href={"/shared-items"}
                       className={`font-poppins rounded-xl px-3 py-2 text-gray-900 transition duration-300 ease-in-out hover:bg-gray-200 dark:text-white hover:dark:bg-gray-800 ${
-                        pathname === "/shared-groups"
+                        pathname === "/shared-items"
                           ? "bg-gray-200 font-medium dark:bg-gray-800"
                           : ""
                       }`}
-                      onClick={() => handleOpenBackdrop("/shared-groups")}
+                      onClick={() => handleOpenBackdrop("/shared-items")}
                     >
-                      Shared groups
+                      Shared Items
                     </Link>
                   </li>
                   {authenticated ? (
@@ -239,6 +240,7 @@ export default function MainLayout({
                 </div>
                 <nav className="mt-2 w-full">
                   <List className="space-y-4">
+                    {/* home */}
                     <ListItem disablePadding>
                       <ListItemButton
                         href="/"
@@ -260,22 +262,23 @@ export default function MainLayout({
                         />
                       </ListItemButton>
                     </ListItem>
+                    {/* shared items */}
                     <ListItem disablePadding>
                       <ListItemButton
-                        href="/shared-groups"
+                        href="/shared-items"
                         className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
-                          pathname === "/shared-groups"
+                          pathname === "/shared-items"
                             ? "bg-gray-200 font-medium dark:bg-gray-800"
                             : ""
                         }`}
-                        onClick={() => handleOpenBackdrop("/shared-groups")}
+                        onClick={() => handleOpenBackdrop("/shared-items")}
                       >
                         <ListItemText
                           primary={
                             <Typography
                               className={`font-poppins w-full text-gray-900 dark:text-white`}
                             >
-                              Shared groups
+                              Shared Items
                             </Typography>
                           }
                         />
@@ -286,6 +289,7 @@ export default function MainLayout({
               </div>
             </Drawer>
           </header>
+          <Toolbar className="mt-2 md:mt-5" />
           {children}
         </div>
         <footer className="bg-gray-100 py-4 shadow-md dark:bg-gray-900">
