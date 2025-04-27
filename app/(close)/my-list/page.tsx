@@ -85,6 +85,7 @@ const MyListPage = () => {
   };
 
   const shareUrl = `https://bulk-share.vercel.app/item/${selectedShareItem}`;
+  const shareTitle = `Join this item group on Bulk Share and save money by buying in bulk!`;
   const description = `Join this item group on Bulk Share and save money by buying in bulk!`;
 
   /*********************************************
@@ -313,7 +314,7 @@ const MyListPage = () => {
             <div className="mt-2 flex w-full items-center gap-2">
               <WhatsappShareButton
                 url={shareUrl}
-                title={title}
+                title={shareTitle}
                 separator=":: "
                 className=""
               >
@@ -325,24 +326,36 @@ const MyListPage = () => {
               <LinkedinShareButton url={shareUrl} className="">
                 <LinkedinIcon size={32} round />
               </LinkedinShareButton>
-              <TelegramShareButton url={shareUrl} title={title} className="">
+              <TelegramShareButton
+                url={shareUrl}
+                title={shareTitle}
+                className=""
+              >
                 <TelegramIcon size={32} round />
               </TelegramShareButton>
-              <TwitterShareButton url={shareUrl} title={title} className="">
+              <TwitterShareButton
+                url={shareUrl}
+                title={shareTitle}
+                className=""
+              >
                 <XIcon size={32} round />
               </TwitterShareButton>
               <EmailShareButton
                 url={shareUrl}
-                subject={title}
+                subject={shareTitle}
                 body={description}
                 className=""
               >
                 <EmailIcon size={32} round />
               </EmailShareButton>
-              <ThreadsShareButton url={shareUrl} title={title} className="">
+              <ThreadsShareButton
+                url={shareUrl}
+                title={shareTitle}
+                className=""
+              >
                 <ThreadsIcon size={32} round />
               </ThreadsShareButton>
-              <TumblrShareButton url={shareUrl} title={title} className="">
+              <TumblrShareButton url={shareUrl} title={shareTitle} className="">
                 <TumblrIcon size={32} round />
               </TumblrShareButton>
             </div>
