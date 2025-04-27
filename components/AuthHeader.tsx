@@ -15,12 +15,13 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useOpenBackdrop } from "@/hooks/backdrop";
 import { fetchUserAttributes, signOut } from "aws-amplify/auth";
 import { Icon } from "@iconify/react";
 import { useAppDispatch } from "@/util/store/store";
 import { setProfile } from "@/util/store/slice/profileSlice";
+import { setOpenBackdrop } from "@/util/store/slice/backdropSlice";
 
 Amplify.configure(outputs);
 
@@ -28,6 +29,7 @@ const AuthHeaderComp = () => {
   const pathname = usePathname();
   const handleOpenBackdrop = useOpenBackdrop();
   const app_dispatch = useAppDispatch();
+  const router = useRouter();
   /********************************************************
    * DRAWER
    ********************************************************/
@@ -72,14 +74,15 @@ const AuthHeaderComp = () => {
       await signOut();
       localStorage.removeItem("bulk-share-email");
       app_dispatch(setProfile(null));
-      handleOpenBackdrop("/");
+      app_dispatch(setOpenBackdrop());
+      router.push("/");
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
 
   return (
-    <header className="bg-gray-100 py-4 shadow-md dark:bg-gray-900">
+    <header className="bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900">
       {/* large screen */}
       <div className="container mx-auto hidden items-center justify-between md:flex">
         <div className="flex items-center">

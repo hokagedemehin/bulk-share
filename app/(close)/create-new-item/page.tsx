@@ -2,22 +2,288 @@
 import { useCloseBackdrop } from "@/hooks/backdrop";
 import {
   Button,
+  Checkbox,
   FormControl,
-  FormHelperText,
+  FormControlLabel,
+  FormLabel,
   IconButton,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   TextField,
+  Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Icon } from "@iconify/react";
-import { BackRouter } from "@/util/helpers/routers";
+import { BackRouter, PushRouter } from "@/util/helpers/routers";
 import { generateClient } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
+import { country_states } from "@/util/helpers/country_state";
+import { useDropzone } from "react-dropzone";
+import Image from "next/image";
+import axios from "axios";
+import { enqueueSnackbar } from "notistack";
+import { fetchUserAttributes } from "aws-amplify/auth";
+import { useAppDispatch } from "@/util/store/store";
+import {
+  setCloseBackdrop,
+  setOpenBackdrop,
+} from "@/util/store/slice/backdropSlice";
 
 const client = generateClient<Schema>();
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      // border: "1px solid",
+      // width: 250,
+    },
+  },
+};
+
 const CreateNewItem = () => {
   useCloseBackdrop();
+  const app_dispatch = useAppDispatch();
+  const pushRouter = PushRouter();
+
+  /*********************************************
+   * USER DETAILS
+   * **********************************************/
+  const [userDetails, setUserDetails] = useState(null as any);
+  // console.log("userDetails :>> ", userDetails);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await fetchUserAttributes();
+        setUserDetails(user);
+      } catch (error) {
+        console.error("Error fetching user details", error);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  /*********************************************
+   * COUNTRY | STATE | CURRENCY
+   * **********************************************/
+  const [countryList, setCountryList] = useState([] as any);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  useEffect(() => {
+    const tempArr: any = [];
+
+    country_states.map((item: any) => {
+      tempArr.push({
+        id: item?.iso2,
+        label: item?.name,
+        value: item?.name,
+        symbol: item?.currency_symbol,
+        currency: item?.currency,
+      });
+    });
+    setCountryList(tempArr);
+
+    return () => {};
+  }, []);
+
+  const [stateList, setStateList] = useState([] as any);
+
+  useEffect(() => {
+    const filteredStates = country_states.filter(
+      (item: any) => item.name === selectedCountry,
+    );
+    const tempArr: any = [];
+    if (filteredStates.length > 0) {
+      filteredStates.map((item: any) => {
+        item?.states.map((state: any) => {
+          tempArr.push({
+            id: state?.id,
+            label: state?.name,
+            value: state?.name,
+          });
+        });
+      });
+      setStateList(tempArr);
+    } else {
+      setStateList([]);
+    }
+
+    return () => {};
+  }, [selectedCountry]);
+
+  const handleSelectedCurrency = (event: SelectChangeEvent<string>) => {
+    const country = event.target.value;
+    setSelectedCountry(country);
+  };
+
+  /*********************************************
+   * CONTACT OPTIONS
+   * **********************************************/
+  const [selectedOption, setSelectedOption] = useState({
+    emailSelected: false,
+    phoneSelected: false,
+  });
+
+  const handleSelectedContactMethod = (event: any) => {
+    const { name, checked } = event.target;
+    setSelectedOption((prevState) => ({
+      ...prevState,
+      [name]: checked,
+    }));
+  };
+
+  /*********************************************
+   * IS DIGITAL OPTION
+   * **********************************************/
+  const [digitalProduct, setDigitalProduct] = useState(false);
+
+  /*********************************************
+   * IMAGE UPLOAD
+   * **********************************************/
+  const [itemImage, setItemImage] = useState<any>([]);
+  const [itemImageUpload, setItemImageUpload] = useState<any>(null);
+  const onDrop = useCallback((acceptedFiles: any) => {
+    // Do something with the files
+    setItemImageUpload(acceptedFiles[0]);
+    setItemImage(
+      acceptedFiles.map((file: any) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        }),
+      ),
+    );
+  }, []);
+
+  const handleRemoveImage = () => {
+    setItemImage([]);
+    setItemImageUpload(null);
+  };
+
+  const {
+    getRootProps,
+    getInputProps,
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+  } = useDropzone({
+    accept: {
+      "image/*": [],
+    },
+    onDrop,
+    maxFiles: 1,
+    multiple: false,
+    maxSize: 9 * 1024 * 1024, // 9MB
+  });
+
+  /*********************************************
+   * ADDITIONAL IMAGE UPLOAD 1
+   * **********************************************/
+  const [moreImage1, setMoreImage1] = useState<any>([]);
+  const [moreImageUpload1, setMoreImageUpload1] = useState<any>(null);
+
+  const onDrop1 = useCallback((acceptedFiles: any) => {
+    // Do something with the files
+    setMoreImageUpload1(acceptedFiles[0]);
+    setMoreImage1(
+      acceptedFiles.map((file: any) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        }),
+      ),
+    );
+  }, []);
+
+  const handleRemoveImage1 = () => {
+    setMoreImage1([]);
+    setMoreImageUpload1(null);
+  };
+
+  const {
+    getRootProps: getRootProps1,
+    getInputProps: getInputProps1,
+    isDragActive: isDragActive1,
+    isDragAccept: isDragAccept1,
+    isDragReject: isDragReject1,
+  } = useDropzone({
+    accept: {
+      "image/*": [],
+    },
+    onDrop: onDrop1,
+    maxFiles: 1,
+    multiple: false,
+    maxSize: 9 * 1024 * 1024, // 9MB
+  });
+
+  /*********************************************
+   * ADDITIONAL IMAGE UPLOAD 2
+   * **********************************************/
+  const [moreImage2, setMoreImage2] = useState<any>([]);
+  const [moreImageUpload2, setMoreImageUpload2] = useState<any>(null);
+  // console.log("moreImageUpload2 :>> ", moreImageUpload2);
+  const onDrop2 = useCallback((acceptedFiles: any) => {
+    // Do something with the files
+    setMoreImageUpload2(acceptedFiles[0]);
+    setMoreImage2(
+      acceptedFiles.map((file: any) =>
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        }),
+      ),
+    );
+  }, []);
+  const handleRemoveImage2 = async () => {
+    setMoreImage2([]);
+    setMoreImageUpload2(null);
+    // const url = await uploadImage(moreImageUpload2);
+    // console.log("url :>> ", url);
+  };
+  const {
+    getRootProps: getRootProps2,
+    getInputProps: getInputProps2,
+    isDragActive: isDragActive2,
+    isDragAccept: isDragAccept2,
+    isDragReject: isDragReject2,
+  } = useDropzone({
+    accept: {
+      "image/*": [],
+    },
+    onDrop: onDrop2,
+    maxFiles: 1,
+    multiple: false,
+    maxSize: 9 * 1024 * 1024, // 9MB
+  });
+
+  /*********************************************
+   * UPLOAD IMAGE FUNCTION
+   * **********************************************/
+  const uploadImage = async (file: any) => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUD_NAME;
+    const preset = process.env.NEXT_PUBLIC_CLOUD_PRESET;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", preset || "");
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      return response.data.secure_url;
+    } catch (error) {
+      console.error("Error uploading image", error);
+    }
+  };
 
   /*********************************************
    * REACT HOOK FORM
@@ -27,37 +293,168 @@ const CreateNewItem = () => {
     handleSubmit,
     formState: { errors },
     reset,
-    // setValue,
+    setValue,
+    clearErrors,
+    setError,
   } = useForm({
     defaultValues: {
-      name: "",
+      itemName: "",
       shortDescription: "",
       longDescription: "",
+      isDigital: false,
       price: "",
+      currency: "",
+      country: "",
+      state: "",
+      location: "",
+      contactMethod: "",
+      emailSelected: false,
+      phoneSelected: false,
+      contactEmail: "",
+      contactPhone: "",
+      contactName: "",
+      peopleRequired: 0,
     },
   });
 
+  useEffect(() => {
+    if (userDetails) {
+      setValue(
+        "contactName",
+        `${userDetails?.family_name} ${userDetails?.given_name}`,
+      );
+      setValue("contactEmail", userDetails?.email);
+      // setValue("contactPhone", userDetails?.phone_number);
+    }
+    const localCountry = localStorage.getItem("bulk_share_country");
+    const localState = localStorage.getItem("bulk_share_state");
+    const localCurrency = localStorage.getItem("bulk_share_currency");
+    setSelectedCountry(localCountry || "");
+
+    if (localCountry) {
+      setValue("country", localCountry);
+    }
+
+    if (localState) {
+      setValue("state", localState);
+    }
+
+    if (localCurrency) {
+      setValue("currency", localCurrency);
+    }
+
+    return () => {};
+  }, [userDetails, setValue]);
+
   const onSubmit = async (data: any) => {
     console.log(data);
+    if (!data.emailSelected && !data.phoneSelected) {
+      setError("contactMethod", {
+        type: "manual",
+        message: "Please select at least one contact method.",
+      });
+      return;
+    }
 
+    if (!itemImageUpload) {
+      enqueueSnackbar("Please provide an item image", {
+        variant: "error",
+      });
+      return;
+    }
+
+    const coverURL = await uploadImage(itemImageUpload);
+    console.log("coverURL :>> ", coverURL);
+    if (!coverURL) {
+      enqueueSnackbar(
+        "Error with cover image, please try again with another image.",
+        {
+          variant: "error",
+        },
+      );
+      return;
+    }
+    let moreImage1URL = "";
+    if (moreImageUpload1) {
+      moreImage1URL = await uploadImage(moreImageUpload1);
+    }
+    let moreImage2URL = "";
+    if (moreImageUpload2) {
+      moreImage2URL = await uploadImage(moreImageUpload2);
+    }
+
+    let selectedMethod = "";
+    if (data.emailSelected && data.phoneSelected) {
+      selectedMethod = "email_phone";
+    } else if (data.emailSelected) {
+      selectedMethod = "email";
+    } else if (data.phoneSelected) {
+      selectedMethod = "phone";
+    }
+    console.log("selectedMethod :>> ", selectedMethod);
     try {
+      app_dispatch(setOpenBackdrop());
+
       const { data: listItems, errors } = await client.models.ListItem.create({
-        name: data.name,
+        name: data.itemName,
         description: {
           short: data.shortDescription,
           long: data.longDescription,
         },
         price: parseFloat(data.price),
+        isDigital: data.isDigital,
+        currency: data.currency,
+        country: data.country,
+        state: data.state,
+        location: data.location,
+        coverImage: coverURL || "",
+        otherImages: JSON.stringify([moreImage1URL, moreImage2URL]),
+        contactMethod: selectedMethod || "",
+        contactEmail: data.contactEmail,
+        // contactPhone: data.contactPhone,
+        contactName: data.contactName,
+        userSub: userDetails?.sub || "",
+        peopleRequired: parseInt(data.peopleRequired),
+        members: JSON.stringify([
+          {
+            userSub: userDetails?.sub,
+            contactName: data.contactName,
+            contactEmail: data.contactEmail,
+            contactPhone: data.contactPhone,
+            isOwner: true,
+            status: "confirmed",
+          },
+        ]),
       });
       console.log("ListItem created", listItems);
 
+      if (listItems) {
+        localStorage.setItem("bulk_share_country", data.country);
+        localStorage.setItem("bulk_share_state", data.state);
+        localStorage.setItem("bulk_share_currency", data.currency);
+        enqueueSnackbar("Item created successfully", {
+          variant: "success",
+        });
+        pushRouter("/my-list");
+        // app_dispatch(setCloseBackdrop());
+      }
+
       if (errors) {
+        enqueueSnackbar("Error creating item", {
+          variant: "error",
+        });
         console.error("ListItem errors", errors);
+        app_dispatch(setCloseBackdrop());
         return;
       }
       // Reset the form after successful submission
       reset();
     } catch (error) {
+      app_dispatch(setCloseBackdrop());
+
+      enqueueSnackbar("Something went wrong!", {
+        variant: "error",
+      });
       console.error("Error creating item", error);
     }
   };
@@ -66,7 +463,7 @@ const CreateNewItem = () => {
 
   return (
     <div>
-      <section className="container mx-auto my-5">
+      <section className="container mx-auto my-5 px-3 md:px-1">
         <div className="mb-3">
           <IconButton aria-label="back" onClick={backRouter}>
             <Icon
@@ -85,213 +482,906 @@ const CreateNewItem = () => {
           help others to understand your intent and collaborate effectively.
         </p>
         <div className="py-4">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="max-w-screen-sm space-y-5"
-          >
-            {/* name */}
-            <div className="">
-              <Controller
-                control={control}
-                name="name"
-                rules={{
-                  required: "Name is required",
-                }}
-                // render={({ field }) => (
-                //   <TextField
-                //     {...field}
-                //     label="Name"
-                //     variant="outlined"
-                //     fullWidth
-                //     error={!!errors.name}
-                //     className="bg-transparent dark:text-white"
-                //     size="small"
-                //   />
-                // )}
-                render={({ field }) => (
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    error={!!errors.name}
-                    className="mb-2"
-                  >
-                    <div
-                      className={`rounded-md border ${
-                        errors.name
-                          ? "border-red-700"
-                          : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
-                      } `}
-                    >
-                      <TextField
-                        {...field}
-                        label="Name"
-                        variant="filled"
+          <form onSubmit={handleSubmit(onSubmit)} className="g">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-2">
+                {/* name */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="itemName"
+                    rules={{
+                      required: "Item name is required",
+                    }}
+                    render={({ field }) => (
+                      <FormControl
                         fullWidth
-                        error={!!errors.name}
-                        className="bg-transparent"
-                        // InputProps={{
-                        //   disableUnderline: true,
-                        //   className: "bg-transparent",
-                        // }}
-                        slotProps={{
-                          input: {
-                            className: "bg-transparent ",
-                            disableUnderline: true,
-                          },
-                        }}
-                        size="small"
-                      />
-                    </div>
-                    <FormHelperText error>
-                      {errors.name?.message}
-                    </FormHelperText>
-                  </FormControl>
-                )}
-              />
-            </div>
-            {/* price */}
-            <div className="">
-              <Controller
-                control={control}
-                name="price"
-                rules={{
-                  required: "Price is required",
-                }}
-                render={({ field }) => (
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    error={!!errors.price}
-                    className="mb-2"
-                  >
-                    <div
-                      className={`rounded-md border ${
-                        errors.price
-                          ? "border-red-700"
-                          : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
-                      } `}
-                    >
-                      <TextField
-                        {...field}
-                        label="Price"
-                        variant="filled"
+                        error={!!errors.itemName}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.itemName}
+                          className={`text-sm ${
+                            errors.itemName
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="name"
+                        >
+                          Item Name
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          error={!!errors.itemName}
+                          // className={`rounded-lg border p-2 text-sm ${
+                          //   errors.name
+                          //     ? "border-red-700"
+                          //     : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
+                          // }`}
+                          // disableUnderline
+                          helperText={errors.itemName?.message || " "}
+                          size="small"
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* price */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="price"
+                    rules={{
+                      required: "Price is required",
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        variant="outlined"
                         fullWidth
                         error={!!errors.price}
-                        className="bg-transparent"
-                        slotProps={{
-                          input: {
-                            className: "bg-transparent ",
-                            disableUnderline: true,
-                          },
-                        }}
-                        size="small"
-                      />
-                    </div>
-                    <FormHelperText error>
-                      {errors.price?.message}
-                    </FormHelperText>
-                  </FormControl>
-                )}
-              />
-            </div>
-            {/* short description */}
-            <div className="">
-              <Controller
-                control={control}
-                name="shortDescription"
-                rules={{
-                  required: "Short description is required",
-                }}
-                render={({ field }) => (
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    error={!!errors.shortDescription}
-                    className="mb-2"
-                  >
-                    <div
-                      className={`rounded-md border ${
-                        errors.shortDescription
-                          ? "border-red-700"
-                          : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
-                      } `}
-                    >
-                      <TextField
-                        {...field}
-                        label="Short Description"
-                        variant="filled"
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.price}
+                          className={`text-sm ${
+                            errors.price
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="price"
+                        >
+                          Price
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          error={!!errors.price}
+                          // className={`rounded-lg border p-2 text-sm ${
+                          //   errors.price
+                          //     ? "border-red-700"
+                          //     : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
+                          // }`}
+                          // disableUnderline
+                          helperText={errors.price?.message || " "}
+                          slotProps={{
+                            input: {
+                              inputProps: {
+                                style: { MozAppearance: "textfield" }, // Firefox
+                              },
+                              sx: {
+                                // Chrome, Safari, Edge
+                                "& input::-webkit-outer-spin-button": {
+                                  WebkitAppearance: "none",
+                                  margin: 0,
+                                },
+                                "& input::-webkit-inner-spin-button": {
+                                  WebkitAppearance: "none",
+                                  margin: 0,
+                                },
+                              },
+                            },
+                          }}
+                          size="small"
+                          type="number"
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* number of people */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="peopleRequired"
+                    rules={{
+                      required: "Number of people is required",
+                      min: {
+                        value: 1,
+                        message: "Number of people must be at least 1",
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        variant="outlined"
+                        fullWidth
+                        error={!!errors.peopleRequired}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.peopleRequired}
+                          className={`text-sm ${
+                            errors.peopleRequired
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="peopleRequired"
+                        >
+                          Number of People Required
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          error={!!errors.peopleRequired}
+                          size="small"
+                          type="number"
+                          helperText={errors.peopleRequired?.message || " "}
+                          slotProps={{
+                            input: {
+                              inputProps: {
+                                style: { MozAppearance: "textfield" },
+                              },
+                              sx: {
+                                "& input::-webkit-outer-spin-button": {
+                                  WebkitAppearance: "none",
+                                  margin: 0,
+                                },
+                                "& input::-webkit-inner-spin-button": {
+                                  WebkitAppearance: "none",
+                                  margin: 0,
+                                },
+                              },
+                            },
+                          }}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* is digital */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="isDigital"
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.isDigital}
+                        className="space-y-1"
+                      >
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              {...field}
+                              checked={field.value}
+                              onChange={(event) => {
+                                field.onChange(event);
+                                setDigitalProduct(event.target.checked);
+                              }}
+                            />
+                          }
+                          label="Is this a digital item?"
+                        />
+                        {errors.isDigital?.message ? (
+                          <span className="pt-1 pl-4 text-xs text-red-400">
+                            {errors.isDigital?.message}
+                          </span>
+                        ) : (
+                          <div className="h-5" />
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* display name */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="contactName"
+                    rules={{
+                      required: "Display name is required",
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.contactName}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.contactName}
+                          className={`text-sm ${
+                            errors.contactName
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="contactName"
+                        >
+                          Display Name
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          error={!!errors.contactName}
+                          size="small"
+                          helperText={errors.contactName?.message || " "}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+
+                {/* short description */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="shortDescription"
+                    rules={{
+                      required: "Short description is required",
+                    }}
+                    render={({ field }) => (
+                      <FormControl
                         fullWidth
                         error={!!errors.shortDescription}
-                        className="bg-transparent"
-                        slotProps={{
-                          input: {
-                            className: "bg-transparent ",
-                            disableUnderline: true,
-                          },
-                        }}
-                        size="small"
-                      />
-                    </div>
-                    <FormHelperText error>
-                      {errors.shortDescription?.message}
-                    </FormHelperText>
-                  </FormControl>
-                )}
-              />
-            </div>
-            {/* long description */}
-            <div className="">
-              <Controller
-                control={control}
-                name="longDescription"
-                rules={{
-                  required: "Long description is required",
-                }}
-                render={({ field }) => (
-                  <FormControl
-                    variant="outlined"
-                    fullWidth
-                    error={!!errors.longDescription}
-                    className="mb-2"
-                  >
-                    <div
-                      className={`rounded-md border ${
-                        errors.longDescription
-                          ? "border-red-700"
-                          : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
-                      } `}
-                    >
-                      <TextField
-                        {...field}
-                        multiline
-                        rows={4}
-                        label="Long Description"
-                        variant="filled"
+                        className="mb-2 space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.shortDescription}
+                          className={`text-sm ${
+                            errors.shortDescription
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="shortDescription"
+                        >
+                          Short Description
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          error={!!errors.shortDescription}
+                          size="small"
+                          helperText={errors.shortDescription?.message || " "}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* long description */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="longDescription"
+                    rules={{
+                      required: "Long description is required",
+                    }}
+                    render={({ field }) => (
+                      <FormControl
                         fullWidth
                         error={!!errors.longDescription}
-                        className="bg-transparent"
-                        slotProps={{
-                          input: {
-                            className: "bg-transparent ",
-                            disableUnderline: true,
-                          },
-                        }}
-                        size="small"
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.longDescription}
+                          className={`text-sm ${
+                            errors.longDescription
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="longDescription"
+                        >
+                          Long Description
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          error={!!errors.longDescription}
+                          size="small"
+                          helperText={errors.longDescription?.message || " "}
+                          multiline
+                          rows={4}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {/* country */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="country"
+                    rules={{
+                      required: "Country is required",
+                      // validate: (value) => {
+                      //   // if the product is not digital, country is required
+                      //   if (!digitalProduct && !value) {
+                      //     return "Country is required";
+                      //   }
+                      // },
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.country}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.country}
+                          className={`text-sm ${
+                            errors.country
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="country"
+                        >
+                          Country
+                        </FormLabel>
+                        <Select
+                          {...field}
+                          onChange={(event) => {
+                            handleSelectedCurrency(event);
+                            field.onChange(event);
+                            setValue("state", "");
+                            const findCountry = countryList.find(
+                              (item: any) => item.value === event.target.value,
+                            );
+                            if (findCountry) {
+                              setValue("currency", findCountry.currency);
+                              clearErrors("currency");
+                            }
+                          }}
+                          // disableUnderline
+                          displayEmpty
+                          fullWidth
+                          error={!!errors.country}
+                          // className={`rounded-lg border text-sm ${
+                          //   errors.country
+                          //     ? "border-red-700"
+                          //     : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
+                          // }`}
+                          size="small"
+                          MenuProps={MenuProps}
+                        >
+                          <MenuItem
+                            value=""
+                            onClick={() => {
+                              setValue("currency", "");
+                            }}
+                          >
+                            Select a Country
+                          </MenuItem>
+                          {countryList.map((item: any) => (
+                            <MenuItem
+                              key={item.id}
+                              value={item.value}
+                              // onClick={() => {
+                              //   setSelectedCountry(item.value);
+                              // }}
+                            >
+                              {item.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {!errors.country?.message ? (
+                          <div className="h-5" />
+                        ) : (
+                          <span className="pt-1 pl-4 text-xs text-red-400">
+                            {errors.country?.message}
+                          </span>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* state */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="state"
+                    rules={{
+                      // required: "State is required",
+                      validate: (value) => {
+                        // if the product is not digital, state is required
+                        if (!digitalProduct && !value) {
+                          return "State is required";
+                        }
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.state}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.state}
+                          className={`text-sm ${
+                            errors.state
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="state"
+                        >
+                          State
+                        </FormLabel>
+                        <Select
+                          {...field}
+                          // variant="outlined"
+                          // disableUnderline
+                          displayEmpty
+                          fullWidth
+                          error={!!errors.state}
+                          disabled={stateList.length === 0}
+                          // className={`rounded-lg border text-sm ${
+                          //   errors.state
+                          //     ? "border-red-700"
+                          //     : "border-gray-700 focus-within:border-gray-700 hover:border-gray-700"
+                          // }`}
+                          size="small"
+                          MenuProps={MenuProps}
+                        >
+                          <MenuItem value="">Select a State</MenuItem>
+                          {stateList.map((item: any) => (
+                            <MenuItem key={item.id} value={item.value}>
+                              {item.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {!errors.state?.message ? (
+                          <span className="pt-1 pl-4 text-xs">
+                            Please select a country first.
+                          </span>
+                        ) : (
+                          <span className="pt-1 pl-4 text-xs text-red-400">
+                            {errors.state?.message}
+                          </span>
+                        )}
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* location */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="location"
+                    rules={{
+                      // required: "Location is required",
+                      validate: (value) => {
+                        // if the product is not digital, location is required
+                        if (!digitalProduct && !value) {
+                          return "Location is required";
+                        }
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.location}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.location}
+                          className={`text-sm ${
+                            errors.location
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="location"
+                        >
+                          Meet-up Location
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          multiline
+                          rows={3}
+                          error={!!errors.location}
+                          size="small"
+                          helperText={errors.location?.message || " "}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* currency */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="currency"
+                    rules={{
+                      // required: "Currency is required",
+                      validate: (value) => {
+                        // if the product is not digital, currency is required
+                        if (!digitalProduct && !value) {
+                          return "Currency is required";
+                        }
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.currency}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.currency}
+                          className={`text-sm ${
+                            errors.currency
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="currency"
+                        >
+                          Currency
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          error={!!errors.currency}
+                          helperText={errors.currency?.message || " "}
+                          slotProps={{
+                            input: {
+                              readOnly: true,
+                            },
+                          }}
+                          size="small"
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* contact method */}
+                <div className="">
+                  <FormControl fullWidth className="space-y-1">
+                    <FormLabel
+                      className={`text-sm ${
+                        errors.contactMethod
+                          ? "text-red-400"
+                          : "text-gray-900 dark:text-white"
+                      }`}
+                      htmlFor="contactMethod"
+                    >
+                      Contact Method
+                    </FormLabel>
+                    <div className="flex items-center space-x-4">
+                      <Controller
+                        control={control}
+                        name="emailSelected"
+                        render={({ field }) => (
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                {...field}
+                                checked={selectedOption.emailSelected}
+                                onChange={(event) => {
+                                  field.onChange(event);
+                                  handleSelectedContactMethod(event);
+                                  clearErrors("contactMethod");
+                                }}
+                              />
+                            }
+                            label="Email"
+                          />
+                        )}
+                      />
+                      <Controller
+                        control={control}
+                        name="phoneSelected"
+                        render={({ field }) => (
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                {...field}
+                                checked={selectedOption.phoneSelected}
+                                onChange={(event) => {
+                                  field.onChange(event);
+                                  handleSelectedContactMethod(event);
+                                  clearErrors("contactMethod");
+                                }}
+                              />
+                            }
+                            label="Phone"
+                          />
+                        )}
                       />
                     </div>
-                    <FormHelperText error>
-                      {errors.longDescription?.message}
-                    </FormHelperText>
+                    {!errors.contactMethod?.message ? (
+                      <span className="pt-1 pl-4 text-xs">
+                        Please select at least one contact method.
+                      </span>
+                    ) : (
+                      <span className="pt-1 pl-4 text-xs text-red-400">
+                        {errors.contactMethod?.message}
+                      </span>
+                    )}
                   </FormControl>
-                )}
-              />
+                </div>
+                {/* email | phone */}
+                <div className="">
+                  {selectedOption.emailSelected && (
+                    <Controller
+                      control={control}
+                      name="contactEmail"
+                      rules={{
+                        validate: (value) => {
+                          if (selectedOption.emailSelected) {
+                            if (!value) {
+                              return "Email is required";
+                            }
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailRegex.test(value)) {
+                              return "Invalid email address";
+                            }
+                          }
+                          return true;
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          fullWidth
+                          error={!!errors.contactEmail}
+                          className="space-y-1"
+                        >
+                          <FormLabel
+                            error={!!errors.contactEmail}
+                            className={`text-sm ${
+                              errors.contactEmail
+                                ? "text-red-400"
+                                : "text-gray-900 dark:text-white"
+                            }`}
+                            htmlFor="contactEmail"
+                          >
+                            Email
+                          </FormLabel>
+                          <TextField
+                            {...field}
+                            fullWidth
+                            error={!!errors.contactEmail}
+                            size="small"
+                            helperText={errors.contactEmail?.message || " "}
+                          />
+                        </FormControl>
+                      )}
+                    />
+                  )}
+                  {selectedOption.phoneSelected && (
+                    <Controller
+                      control={control}
+                      name="contactPhone"
+                      rules={{
+                        validate: (value) => {
+                          if (selectedOption.phoneSelected) {
+                            if (!value) {
+                              return "Phone number is required";
+                            }
+                          }
+                          return true;
+                        },
+                      }}
+                      render={({ field }) => (
+                        <FormControl
+                          fullWidth
+                          error={!!errors.contactPhone}
+                          className="space-y-1"
+                        >
+                          <FormLabel
+                            error={!!errors.contactPhone}
+                            className={`text-sm ${
+                              errors.contactPhone
+                                ? "text-red-400"
+                                : "text-gray-900 dark:text-white"
+                            }`}
+                            htmlFor="contactPhone"
+                          >
+                            Phone Number
+                          </FormLabel>
+                          <TextField
+                            {...field}
+                            fullWidth
+                            error={!!errors.contactPhone}
+                            size="small"
+                            helperText={errors.contactPhone?.message || " "}
+                          />
+                        </FormControl>
+                      )}
+                    />
+                  )}
+                </div>
+              </div>
+              {/* images */}
+              <div className="space-y-2">
+                {/* cover image */}
+                <div className="h-[22rem]">
+                  {itemImage.length === 0 ? (
+                    <div
+                      {...getRootProps()}
+                      className="flex h-full w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-100 transition duration-300 ease-in-out hover:cursor-pointer hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500 dark:hover:bg-gray-700"
+                    >
+                      <input {...getInputProps()} />
+                      {isDragAccept && (
+                        <Typography
+                          variant="body2"
+                          className="font-poppins text-center text-xs text-green-600"
+                        >
+                          Drop the file here ...
+                        </Typography>
+                      )}
+                      {isDragReject && (
+                        <p
+                          className="font-poppins text-xs text-red-600"
+                          text-center
+                        >
+                          File type not accepted & only one image is allowed,
+                          sorry!
+                        </p>
+                      )}
+                      {!isDragActive && (
+                        <Typography
+                          variant="body2"
+                          className="font-poppins text-center text-sm text-gray-600 md:text-base dark:text-gray-400"
+                        >
+                          Upload image (required)
+                        </Typography>
+                      )}
+                    </div>
+                  ) : (
+                    <Image
+                      src={itemImage[0]?.preview}
+                      alt="Item Image"
+                      className="h-[90%] w-full rounded-lg object-contain"
+                      width={500}
+                      height={500}
+                    />
+                  )}
+                  {itemImage.length > 0 && (
+                    <div className="flex items-center justify-center">
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        className="font-poppins mt-2 rounded-lg text-xs normal-case"
+                        onClick={handleRemoveImage}
+                      >
+                        Remove Image
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {/* other images */}
+                <div className="grid grid-cols-1 gap-4 py-2 md:grid-cols-2">
+                  {/* first more image */}
+                  <div className="h-[16rem]">
+                    {moreImage1.length === 0 ? (
+                      <div
+                        {...getRootProps1()}
+                        className="flex h-full w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-100 transition duration-300 ease-in-out hover:cursor-pointer hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500 dark:hover:bg-gray-700"
+                      >
+                        <input {...getInputProps1()} />
+                        {isDragAccept1 && (
+                          <Typography
+                            variant="body2"
+                            className="font-poppins text-center text-xs text-green-600"
+                          >
+                            Drop the file here ...
+                          </Typography>
+                        )}
+                        {isDragReject1 && (
+                          <p
+                            className="font-poppins text-xs text-red-600"
+                            text-center
+                          >
+                            File type not accepted & only one image is allowed,
+                            sorry!
+                          </p>
+                        )}
+                        {!isDragActive1 && (
+                          <Typography
+                            variant="body2"
+                            className="font-poppins text-center text-xs text-gray-600 normal-case dark:text-gray-400"
+                          >
+                            Additional Image (optional)
+                          </Typography>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="h-full">
+                        <Image
+                          src={moreImage1[0]?.preview}
+                          alt="Additional image 1"
+                          className="h-[85%] w-full rounded-lg object-contain"
+                          width={500}
+                          height={500}
+                        />
+                        <div className="flex items-center justify-center">
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            className="font-poppins mt-2 rounded-lg text-xs normal-case"
+                            onClick={handleRemoveImage1}
+                          >
+                            Remove Image
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* second more image */}
+                  <div className="h-[16rem]">
+                    {moreImage2.length === 0 ? (
+                      <div
+                        {...getRootProps2()}
+                        className="flex h-full w-full flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-100 transition duration-300 ease-in-out hover:cursor-pointer hover:bg-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-gray-500 dark:hover:bg-gray-700"
+                      >
+                        <input {...getInputProps2()} />
+                        {isDragAccept2 && (
+                          <Typography
+                            variant="body2"
+                            className="font-poppins text-center text-xs text-green-600"
+                          >
+                            Drop the file here ...
+                          </Typography>
+                        )}
+                        {isDragReject2 && (
+                          <p
+                            className="font-poppins text-xs text-red-600"
+                            text-center
+                          >
+                            File type not accepted & only one image is allowed,
+                            sorry!
+                          </p>
+                        )}
+                        {!isDragActive2 && (
+                          <Typography
+                            variant="body2"
+                            className="font-poppins text-center text-xs text-gray-600 normal-case dark:text-gray-400"
+                          >
+                            Additional Image (optional)
+                          </Typography>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="h-full">
+                        <Image
+                          src={moreImage2[0]?.preview}
+                          alt="Additional image 2"
+                          className="h-[85%] w-full rounded-lg object-contain"
+                          width={500}
+                          height={500}
+                        />
+                        <div className="flex items-center justify-center">
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            className="font-poppins mt-2 rounded-lg text-xs normal-case"
+                            onClick={handleRemoveImage2}
+                          >
+                            Remove Image
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             {/* submit button */}
-            <div className="flex items-center justify-end">
+            <div className="mt-5 flex items-center justify-end">
               <Button
                 variant="contained"
                 color="primary"
-                className="font-poppins rounded-xl normal-case"
+                className="font-poppins w-[40%] rounded-xl normal-case md:w-[30%] lg:w-[20%]"
                 type="submit"
               >
                 Create Item

@@ -179,10 +179,38 @@
               "isRequired": false,
               "attributes": []
             },
-            "otherImage": {
-              "name": "otherImage",
+            "otherImages": {
+              "name": "otherImages",
               "isArray": false,
               "type": "AWSJSON",
+              "isRequired": false,
+              "attributes": []
+            },
+            "contactMethod": {
+              "name": "contactMethod",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "contactEmail": {
+              "name": "contactEmail",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "contactPhone": {
+              "name": "contactPhone",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "contactName": {
+              "name": "contactName",
+              "isArray": false,
+              "type": "String",
               "isRequired": false,
               "attributes": []
             },
