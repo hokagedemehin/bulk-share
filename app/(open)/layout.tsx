@@ -28,7 +28,7 @@ export default function MainLayout({
   const handleOpenBackdrop = useOpenBackdrop();
   const [authenticated, setAuthenticated] = useState(false);
 
-// Removed unnecessary debug logging statement.
+  // Removed unnecessary debug logging statement.
 
   useEffect(() => {
     const user = localStorage.getItem("bulk-share-email");
@@ -75,7 +75,7 @@ export default function MainLayout({
     <>
       <main className="flex min-h-screen flex-col justify-between">
         <div className="">
-          <header className="bg-gray-100 py-4 shadow-md dark:bg-gray-900">
+          <header className="bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900">
             {/* large screen */}
             <div className="container mx-auto hidden items-center justify-between md:flex">
               <div className="flex items-center">

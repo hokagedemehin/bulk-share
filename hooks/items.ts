@@ -12,10 +12,22 @@ export const useSharedItems = () => {
   function getListItems(setItems: any) {
     const listSub = client.models.ListItem.observeQuery().subscribe({
       next: ({ items, isSynced }) => {
-        console.log("ListItem data", items);
-        console.log("ListItem isSynced", isSynced);
         if (isSynced) {
-          setItems([...items]);
+          const parsedItems = items.map((item) => {
+            return {
+              ...item,
+              members: JSON.parse(item.members as string),
+              otherImages: JSON.parse(item.otherImages as string),
+            };
+          });
+          console.log("parsedItems :>> ", parsedItems);
+
+          const sortItems = parsedItems.sort((a, b) => {
+            const dateA = new Date(a.createdAt);
+            const dateB = new Date(b.createdAt);
+            return dateB.getTime() - dateA.getTime();
+          });
+          setItems([...sortItems]);
         }
       },
       error: (error) => {
@@ -31,10 +43,22 @@ export const useSharedItems = () => {
   useEffect(() => {
     const listSub = client.models.ListItem.observeQuery().subscribe({
       next: ({ items, isSynced }) => {
-        console.log("ListItem data", items);
-        console.log("ListItem isSynced", isSynced);
         if (isSynced) {
-          setAllListItems(items);
+          const parsedItems = items.map((item) => {
+            return {
+              ...item,
+              members: JSON.parse(item.members as string),
+              // members: item.members,
+              otherImages: JSON.parse(item.otherImages as string),
+            };
+          });
+
+          const sortItems = parsedItems.sort((a, b) => {
+            const dateA = new Date(a.createdAt);
+            const dateB = new Date(b.createdAt);
+            return dateB.getTime() - dateA.getTime();
+          });
+          setAllListItems([...sortItems]);
         }
       },
       error: (error) => {
