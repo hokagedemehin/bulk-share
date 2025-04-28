@@ -35,11 +35,15 @@ export async function generateMetadata(
     const prevData = await parent;
 
     return {
-      title: `${data?.name} || ${prevData.title}`,
-      description: `${data?.description?.short} || Join the community and save on your next purchase!`,
+      title: `${data?.name}` || `${prevData.title}`,
+      description:
+        `${data?.description?.short}` ||
+        "Join the community and save on your next purchase!",
       openGraph: {
         title: `${data?.name} || ${prevData.title}`,
-        description: `${data?.description?.short} || Join the community and save on your next purchase!`,
+        description:
+          `${data?.description?.short}` ||
+          "Join the community and save on your next purchase!",
         url: `https://bulk-share.vercel.app/item/${data?.id}`,
         siteName: "Bulk Share",
         images: [
@@ -73,8 +77,10 @@ export async function generateMetadata(
       },
       twitter: {
         card: "summary_large_image",
-        title: `${data?.name} || ${prevData.title}`,
-        description: `${data?.description?.short} || Join the community and save on your next purchase!`,
+        title: `${data?.name}` || `${prevData.title}`,
+        description:
+          `${data?.description?.short}` ||
+          "Join the community and save on your next purchase!",
         images: [
           data?.coverImage ||
             "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
