@@ -35,12 +35,12 @@ export async function generateMetadata(
     const prevData = await parent;
 
     return {
-      title: `${data?.name ?? prevData.title}`,
+      title: `${data?.name}` || `${prevData.title}`,
       description:
         `${data?.description?.short}` ||
         "Join the community and save on your next purchase!",
       openGraph: {
-        title: `${data?.name ?? prevData.title}`,
+        title: `${data?.name} || ${prevData.title}`,
         description:
           `${data?.description?.short}` ||
           "Join the community and save on your next purchase!",
@@ -77,7 +77,7 @@ export async function generateMetadata(
       },
       twitter: {
         card: "summary_large_image",
-        title: `${data?.name}` ?? `${prevData.title}`,
+        title: `${data?.name}` || `${prevData.title}`,
         description:
           `${data?.description?.short}` ||
           "Join the community and save on your next purchase!",
