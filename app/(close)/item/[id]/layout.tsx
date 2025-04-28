@@ -40,7 +40,7 @@ export async function generateMetadata(
         `${data?.description?.short}` ||
         "Join the community and save on your next purchase!",
       openGraph: {
-        title: `${data?.name} || ${prevData.title}`,
+        title: `${data?.name}` || `${prevData.title}`,
         description:
           `${data?.description?.short}` ||
           "Join the community and save on your next purchase!",
@@ -53,7 +53,7 @@ export async function generateMetadata(
               "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
             width: 1200,
             height: 630,
-            alt: `${data?.name} || ${prevData.title}`,
+            alt: `${data?.name}` || `${prevData.title}`,
           },
           {
             url:
@@ -61,7 +61,7 @@ export async function generateMetadata(
               "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
             width: 800,
             height: 600,
-            alt: `${data?.name} || ${prevData.title}`,
+            alt: `${data?.name}` || `${prevData.title}`,
           },
           {
             url:
@@ -69,7 +69,7 @@ export async function generateMetadata(
               "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
             width: 1800,
             height: 1600,
-            alt: `${data?.name} || ${prevData.title}`,
+            alt: `${data?.name}` || `${prevData.title}`,
           },
         ],
         locale: "en-US",
