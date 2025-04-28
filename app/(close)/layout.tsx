@@ -4,10 +4,12 @@ import { Authenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
 import "@aws-amplify/ui-react/styles.css";
 import outputs from "@/amplify_outputs.json";
-import { Typography } from "@mui/material";
+import { Toolbar, Typography } from "@mui/material";
 import AuthHeaderComp from "@/components/AuthHeader";
 
-Amplify.configure(outputs);
+Amplify.configure(outputs, {
+  ssr: true,
+});
 
 export default function MainLayout({
   children,
@@ -20,6 +22,7 @@ export default function MainLayout({
         <Authenticator className="min-h-screen">
           <div className="">
             <AuthHeaderComp />
+            <Toolbar className="mt-2 md:mt-5" />
             {children}
           </div>
           <footer className="bg-gray-100 py-4 shadow-md dark:bg-gray-900">
