@@ -107,13 +107,19 @@ const MyListPage = () => {
   // console.log("myListItems :>> ", myListItems);
 
   useEffect(() => {
-    (async () => {
-      const listSub1 = await getMyItems(setMyListItems);
-      return () => {
-        listSub1.unsubscribe();
-      };
-    })();
+    let listSub1: { unsubscribe: () => void } | null = null;
 
+    const fetchItems = async () => {
+      listSub1 = await getMyItems(setMyListItems);
+    };
+
+    fetchItems();
+
+    return () => {
+      if (listSub1) {
+        listSub1.unsubscribe();
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
