@@ -20,6 +20,7 @@ export const useSharedItems = () => {
               ...item,
               members: JSON.parse(item.members as string),
               otherImages: JSON.parse(item.otherImages as string),
+              removedMembers: JSON.parse(item.removedMembers as string),
             };
           });
           // console.log("parsedItems :>> ", parsedItems);
@@ -62,6 +63,7 @@ export const useSharedItems = () => {
               ...item,
               members: JSON.parse(item.members as string),
               otherImages: JSON.parse(item.otherImages as string),
+              removedMembers: JSON.parse(item.removedMembers as string),
             };
           });
 
@@ -104,6 +106,7 @@ export const useSharedItems = () => {
           ...getItem.data,
           members: JSON.parse(getItem.data.members as string),
           otherImages: JSON.parse(getItem.data.otherImages as string),
+          removedMembers: JSON.parse(getItem.data.removedMembers as string),
         };
 
         return parsedItem;
@@ -124,6 +127,7 @@ export const useSharedItems = () => {
               members: JSON.parse(item.members as string),
               // members: item.members,
               otherImages: JSON.parse(item.otherImages as string),
+              removedMembers: JSON.parse(item.removedMembers as string),
             };
           });
 

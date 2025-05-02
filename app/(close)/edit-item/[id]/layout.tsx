@@ -29,11 +29,11 @@ export default async function EditItemLayout({
       config: outputs,
       cookies,
     });
-    console.log("id :>> ", id);
+    // console.log("id :>> ", id);
     const { data } = await cookieBasedClient.models.ListItem.get({
       id: id as string,
     });
-    console.log("data :>> ", data);
+    // console.log("data :>> ", data);
     if (!data) {
       throw new Error("Item not found");
     }

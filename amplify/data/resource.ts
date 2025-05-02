@@ -36,7 +36,9 @@ const schema = a.schema({
       contactName: a.string(),
       userSub: a.string(),
       peopleRequired: a.integer(),
-      members: a.json(),
+      members: a.json(), // userSub, contactName, contactEmail, contactPhone, isOwner, status
+      removedMembers: a.json(), // userSub, contactName, contactEmail, contactPhone, isOwner, status
+      status: a.string().default("active"), // active, inactive, closed
     })
     .authorization((allow) => [
       // allow.guest(),
