@@ -35,11 +35,15 @@ export async function generateMetadata(
     const prevData = await parent;
 
     return {
-      title: `${data?.name}` ? `${data?.name}` : prevData.title,
-      description: `${data?.description?.short}`,
+      title: data?.name ? data?.name : prevData.title!,
+      description: data?.description?.short
+        ? data.description.short
+        : prevData.description!,
       openGraph: {
-        title: `${data?.name}`,
-        description: `${data?.description?.short}`,
+        title: data?.name ? data?.name : prevData.title!,
+        description: data?.description?.short
+          ? data.description.short
+          : prevData.description!,
         url: `https://bulk-share.vercel.app/item/${data?.id}`,
         siteName: "Bulk Share",
         images: [
@@ -73,8 +77,10 @@ export async function generateMetadata(
       },
       twitter: {
         card: "summary_large_image",
-        title: `${data?.name}`,
-        description: `${data?.description?.short}`,
+        title: data?.name ? data?.name : prevData.title!,
+        description: data?.description?.short
+          ? data.description.short
+          : prevData.description!,
         images: [
           data?.coverImage ||
             "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
@@ -104,16 +110,16 @@ export default async function MyItemDetailsLayout({
       nextServerContext: { cookies },
       operation: async (contextSpec) => fetchUserAttributes(contextSpec),
     });
-    console.log("currentUser :>> ", currentUser);
+    // console.log("currentUser :>> ", currentUser);
     const cookieBasedClient = generateServerClientUsingCookies<Schema>({
       config: outputs,
       cookies,
     });
-    console.log("item details id :>> ", id);
+    // console.log("item details id :>> ", id);
     const { data } = await cookieBasedClient.models.ListItem.get({
       id: id as string,
     });
-    console.log("item details data :>> ", data);
+    // console.log("item details data :>> ", data);
     if (!data) {
       throw new Error("Item not found");
     }

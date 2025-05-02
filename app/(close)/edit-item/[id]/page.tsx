@@ -537,7 +537,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
           },
         ]),
       });
-      console.log("ListItem updated", listItems);
+      // console.log("ListItem updated", listItems);
 
       if (listItems) {
         localStorage.setItem("bulk_share_country", data.country);
