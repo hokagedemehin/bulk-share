@@ -15,7 +15,7 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useSharedItems } from "@/hooks/items";
 import Image from "next/image";
@@ -33,6 +33,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import CustomDialog from "@/components/layout/CustomDialog";
 import { Controller, useForm } from "react-hook-form";
+import { getAllISOCodes } from "iso-country-currency";
+import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
 
 const client = generateClient<Schema>();
 
@@ -98,13 +101,16 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = use(params);
   const { getSingleItem } = useSharedItems();
   const app_dispatch = useAppDispatch();
+  const router = useRouter();
+
+  const currencyList = useMemo(() => getAllISOCodes(), []);
 
   const [itemDetails, setItemDetails] = useState([] as any);
 
   const [confirmedMembers, setConfirmedMembers] = useState([] as any);
   const [pendingMembers, setPendingMembers] = useState([] as any);
 
-  console.log("itemDetails :>> ", itemDetails);
+  // console.log("itemDetails :>> ", itemDetails);
 
   useEffect(() => {
     (async () => {
@@ -185,7 +191,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
       if (removedMember) {
         app_dispatch(setCloseBackdrop());
-        console.log("removedMember :>> ", removedMember);
+        // console.log("removedMember :>> ", removedMember);
         enqueueSnackbar(
           `${selectedMember?.contactName} has been removed from the group`,
           {
@@ -432,6 +438,46 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
     }));
   };
 
+  /*********************************************************
+   * CLOSE ITEMS
+   **********************************************************/
+  const handleCloseItem = async () => {
+    //change the visible to field of the item to owner
+    app_dispatch(setOpenBackdrop());
+    try {
+      const { data: closedItem, errors } = await client.models.ListItem.update({
+        id: itemDetails?.id,
+        // visible: false,
+        visibleTo: "owner",
+        status: "inactive",
+      });
+
+      if (closedItem) {
+        app_dispatch(setCloseBackdrop());
+        enqueueSnackbar("Item has been closed", {
+          variant: "success",
+        });
+        router.replace("/my-list");
+        return;
+      }
+
+      if (errors) {
+        app_dispatch(setCloseBackdrop());
+        console.error("Error closing item", errors);
+        enqueueSnackbar("Error closing item. Please try again.", {
+          variant: "error",
+        });
+        return;
+      }
+    } catch (error) {
+      app_dispatch(setCloseBackdrop());
+      console.error("Error closing item", error);
+      enqueueSnackbar("Error closing item. Please try again.", {
+        variant: "error",
+      });
+    }
+  };
+
   return (
     <div className="px-2">
       <section className="container mx-auto my-5">
@@ -455,6 +501,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           </p>
         </div>
       </section>
+      {/* image | members */}
       <section className="container mx-auto my-5">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* image */}
@@ -639,10 +686,156 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         </div>
                       </div>
                     ))}
+                  {pendingMembers?.length === 0 && (
+                    <p className="mt-14 mb-8 text-center text-sm text-gray-500">
+                      You don&apos;t have any pending members for this item yet.
+                    </p>
+                  )}
                 </div>
               </CustomTabPanel>
             </div>
           </div>
+        </div>
+      </section>
+      {/* item details */}
+      <section className="container mx-auto mt-5">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col space-y-5">
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Item Name
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.name}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Short Description
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.description?.short}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Long Description
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.description?.long}
+              </p>
+            </div>
+          </div>
+          <div className="space-y-5">
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Price
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {
+                  currencyList.find(
+                    (currency: any) =>
+                      currency.currency === itemDetails?.currency,
+                  )?.symbol
+                }
+                {new Intl.NumberFormat("en-US").format(itemDetails?.price)}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Digital Item
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.isDigital ? "Yes" : "No"}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Link Validity
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {dayjs(itemDetails?.expiresAt).format("DD MMM YYYY, hh:mm A")}
+              </p>
+            </div>
+          </div>
+          <div className="space-y-5">
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Meet up location
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.location ? itemDetails?.location : "-"}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                People Limit
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.peopleRequired}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Status
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.status === "active" ? "Active" : "Inactive"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* other images */}
+      <section className="container mx-auto my-5 border-t border-gray-200 pt-5 dark:border-gray-600">
+        <div className="overflow-x-auto">
+          <h1 className="mb-3 text-2xl font-bold text-gray-900 dark:text-white">
+            Other Images
+          </h1>
+          {itemDetails?.otherImages?.length > 0 &&
+            itemDetails?.otherImages?.some((image: any) => image === "") && (
+              <p className="mt-10 mb-8 text-center text-sm text-gray-500">
+                You don&apos;t have any other images for this item yet.
+              </p>
+            )}
+          <div className="flex space-x-3 overflow-x-auto">
+            {itemDetails?.otherImages?.length > 0 &&
+              itemDetails?.otherImages?.every((image: any) => image !== "") &&
+              itemDetails?.otherImages?.map((image: any, index: number) => (
+                <Image
+                  key={index}
+                  src={image}
+                  alt={itemDetails?.name}
+                  width={1500}
+                  height={1000}
+                  className="h-auto min-w-[300px] rounded-lg object-cover shadow-md md:min-w-[500px]"
+                />
+              ))}
+          </div>
+        </div>
+      </section>
+      {/* buttons */}
+      <section className="container mx-auto mb-5">
+        <div className="flex items-center justify-end space-x-4">
+          <Button
+            variant="outlined"
+            className="rounded-full normal-case"
+            onClick={() => {
+              handleCloseItem();
+            }}
+          >
+            <span className="text-sm font-semibold">Close Item</span>
+          </Button>
+          <Button
+            variant="contained"
+            className="rounded-full normal-case"
+            onClick={() => {
+              app_dispatch(setOpenBackdrop());
+              router.push(`/edit-item/${itemDetails?.id}`);
+            }}
+          >
+            <span className="text-sm font-semibold">Update</span>
+          </Button>
         </div>
       </section>
       {/* delete member dialog */}

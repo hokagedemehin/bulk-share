@@ -104,7 +104,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const [confirmedMembers, setConfirmedMembers] = useState([] as any);
   const [pendingMembers, setPendingMembers] = useState([] as any);
 
-  console.log("itemDetails :>> ", itemDetails);
+  // console.log("itemDetails :>> ", itemDetails);
 
   useEffect(() => {
     (async () => {
@@ -185,7 +185,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
       if (removedMember) {
         app_dispatch(setCloseBackdrop());
-        console.log("removedMember :>> ", removedMember);
+        // console.log("removedMember :>> ", removedMember);
         enqueueSnackbar(
           `${selectedMember?.contactName} has been removed from the group`,
           {

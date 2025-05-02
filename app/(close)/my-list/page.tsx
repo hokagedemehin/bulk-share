@@ -104,6 +104,10 @@ const MyListPage = () => {
   const [myListItems, setMyListItems] = useState<Schema["ListItem"]["type"][]>(
     [],
   );
+  const [activeItems, setActiveItems] = useState<Schema["ListItem"]["type"][]>(
+    [],
+  );
+  const [closedItemsLength, setClosedItemsLength] = useState(0);
   // console.log("myListItems :>> ", myListItems);
 
   useEffect(() => {
@@ -122,6 +126,19 @@ const MyListPage = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useMemo(() => {
+    if (myListItems.length > 0) {
+      const filteredItems = myListItems.filter(
+        (item) => item.visible && item.visibleTo === "everyone",
+      );
+      setActiveItems(filteredItems);
+      const closedItems = myListItems.filter(
+        (item) => item.visible && item.visibleTo === "owner",
+      );
+      setClosedItemsLength(closedItems.length);
+    }
+  }, [myListItems]);
 
   /*********************************************
    * SHARE DIALOG
@@ -163,8 +180,10 @@ const MyListPage = () => {
     setOpenDeleteDialog(false);
     try {
       app_dispatch(setOpenBackdrop());
-      const { data, errors } = await client.models.ListItem.delete({
+      const { data, errors } = await client.models.ListItem.update({
         id: item?.id,
+        visible: false,
+        visibleTo: "none",
       });
       handleCloseDeleteDialog();
       if (data) {
@@ -195,24 +214,37 @@ const MyListPage = () => {
       <section className="container mx-auto my-5 px-3 md:px-1">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">My List</h1>
-          <Button
-            variant="contained"
-            color="primary"
-            className="font-poppins rounded-xl"
-            onClick={() => {
-              app_dispatch(setOpenBackdrop());
-              router.push("/create-new-item");
-            }}
-          >
-            Add New Item
-          </Button>
+          <div className="flex items-center space-x-3">
+            {closedItemsLength > 0 && (
+              <Link
+                href="/my-closed-list"
+                className="rounded-xl border border-red-700 px-5 py-2 text-sm text-red-700 transition duration-300 ease-in-out hover:bg-red-50 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-50/10"
+                onClick={() => {
+                  app_dispatch(setOpenBackdrop());
+                }}
+              >
+                Closed items
+              </Link>
+            )}
+            <Button
+              variant="contained"
+              color="primary"
+              className="font-poppins rounded-xl"
+              onClick={() => {
+                app_dispatch(setOpenBackdrop());
+                router.push("/create-new-item");
+              }}
+            >
+              Add New Item
+            </Button>
+          </div>
         </div>
         <p className="mt-2 text-gray-600">
           This is the my list page. You can manage your list here.
         </p>
       </section>
       <section className="px-3 md:px-1">
-        {myListItems.length === 0 && (
+        {activeItems.length === 0 && (
           <section className="container mx-auto flex h-[50vh] flex-col items-center justify-center">
             <Image
               src="/emptylist1.png"
@@ -226,9 +258,9 @@ const MyListPage = () => {
             </h1>
           </section>
         )}
-        {myListItems.length > 0 && (
+        {activeItems.length > 0 && (
           <section className="container mx-auto my-5 mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {myListItems.map((item: any) => (
+            {activeItems.map((item: any) => (
               <Paper
                 key={item?.id}
                 elevation={3}

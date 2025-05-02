@@ -24,7 +24,7 @@ export default async function EditItemLayout({
       nextServerContext: { cookies },
       operation: async (contextSpec) => fetchUserAttributes(contextSpec),
     });
-    console.log("currentUser :>> ", currentUser);
+    // console.log("currentUser :>> ", currentUser);
     const cookieBasedClient = generateServerClientUsingCookies<Schema>({
       config: outputs,
       cookies,

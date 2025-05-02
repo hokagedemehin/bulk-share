@@ -352,7 +352,7 @@ const CreateNewItem = () => {
   }, [userDetails, setValue]);
 
   const onSubmit = async (data: any) => {
-    console.log(data);
+    // console.log(data);
     if (!data.emailSelected && !data.phoneSelected) {
       setError("contactMethod", {
         type: "manual",
@@ -431,8 +431,12 @@ const CreateNewItem = () => {
             status: "confirmed",
           },
         ]),
+        visible: true,
+        visibleTo: "everyone",
+        status: "active",
+        removedMembers: JSON.stringify([]),
       });
-      console.log("ListItem created", listItems);
+      // console.log("ListItem created", listItems);
 
       if (listItems) {
         localStorage.setItem("bulk_share_country", data.country);
