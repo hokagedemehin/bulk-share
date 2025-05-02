@@ -22,6 +22,8 @@ const schema = a.schema({
         long: a.string(),
       }),
       price: a.float().required(),
+      visible: a.boolean().default(true),
+      visibleTo: a.string().default("everyone"), // everyone, members, owner, none
       expiresAt: a.string(),
       isDigital: a.boolean().default(false),
       currency: a.string().default("USD"),

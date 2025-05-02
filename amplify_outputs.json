@@ -137,6 +137,20 @@
               "isRequired": true,
               "attributes": []
             },
+            "visible": {
+              "name": "visible",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "visibleTo": {
+              "name": "visibleTo",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "expiresAt": {
               "name": "expiresAt",
               "isArray": false,

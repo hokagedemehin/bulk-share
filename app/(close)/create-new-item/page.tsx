@@ -431,6 +431,10 @@ const CreateNewItem = () => {
             status: "confirmed",
           },
         ]),
+        visible: true,
+        visibleTo: "everyone",
+        status: "active",
+        removedMembers: JSON.stringify([]),
       });
       console.log("ListItem created", listItems);
 

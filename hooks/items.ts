@@ -15,7 +15,8 @@ export const useSharedItems = () => {
     const listSub = client.models.ListItem.observeQuery().subscribe({
       next: ({ items, isSynced }) => {
         if (isSynced) {
-          const parsedItems = items.map((item) => {
+          const filterItems = items.filter((item) => item.visible);
+          const parsedItems = filterItems.map((item) => {
             return {
               ...item,
               members: JSON.parse(item.members as string),
@@ -50,7 +51,7 @@ export const useSharedItems = () => {
       next: ({ items, isSynced }) => {
         if (isSynced) {
           const filteredItems = items.filter(
-            (item) => item.userSub === user?.sub,
+            (item) => item.userSub === user?.sub && item.visible,
           );
 
           if (filteredItems.length === 0) {
