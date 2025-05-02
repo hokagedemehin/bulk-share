@@ -33,6 +33,7 @@ import {
 import { useSharedItems } from "@/hooks/items";
 import dayjs from "dayjs";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import { v4 as uuidv4 } from "uuid";
 
 const client = generateClient<Schema>();
 
@@ -354,7 +355,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
 
     (async () => {
       const itemDetails = await getSingleItem(id);
-      console.log("itemDetails :>> ", itemDetails);
+      // console.log("itemDetails :>> ", itemDetails);
       if (itemDetails) {
         setValue("itemName", itemDetails?.name || "");
         setValue(
@@ -511,7 +512,6 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         },
         price: parseFloat(data.price),
         expiresAt: data.expiresAt,
-
         isDigital: data.isDigital,
         currency: data.currency,
         country: data.country,
@@ -527,6 +527,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         peopleRequired: parseInt(data.peopleRequired),
         members: JSON.stringify([
           {
+            id: uuidv4(),
             userSub: userDetails?.sub,
             contactName: data.contactName,
             contactEmail: data.contactEmail,

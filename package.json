@@ -38,7 +38,8 @@
     "react-select": "^5.10.1",
     "react-share": "^5.2.2",
     "react-slugify": "^4.0.1",
-    "sharp": "^0.34.1"
+    "sharp": "^0.34.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.14.3",

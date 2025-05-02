@@ -32,6 +32,7 @@ import {
 } from "@/util/store/slice/backdropSlice";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
+import { v4 as uuidv4 } from "uuid";
 
 const client = generateClient<Schema>();
 
@@ -421,6 +422,7 @@ const CreateNewItem = () => {
         peopleRequired: parseInt(data.peopleRequired),
         members: JSON.stringify([
           {
+            id: uuidv4(),
             userSub: userDetails?.sub,
             contactName: data.contactName,
             contactEmail: data.contactEmail,

@@ -9,7 +9,6 @@ import {
   Box,
   Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   Fab,
@@ -48,6 +47,7 @@ import { getAllISOCodes } from "iso-country-currency";
 import { enqueueSnackbar } from "notistack";
 import Link from "next/link";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import CustomDialog from "@/components/layout/CustomDialog";
 
 const client = generateClient<Schema>();
 const MyListPage = () => {
@@ -312,7 +312,7 @@ const MyListPage = () => {
                         Edit
                       </Link>
                       <Link
-                        href={`/item/${item?.id}`}
+                        href={`/my-item/${item?.id}`}
                         className="rounded-xl border border-green-700 px-5 py-2 text-sm text-green-700 transition duration-300 ease-in-out hover:bg-green-50 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-50/10"
                         onClick={() => {
                           app_dispatch(setOpenBackdrop());
@@ -436,58 +436,14 @@ const MyListPage = () => {
         </DialogContent>
       </Dialog>
       {/* delete dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        maxWidth="sm"
-        fullWidth
-        slotProps={{
-          paper: {
-            style: {
-              borderRadius: 20,
-            },
-          },
-        }}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-      >
-        <div className="flex items-center justify-between px-2">
-          <DialogTitle className="font-poppins text-xl font-bold">
-            Delete this item
-          </DialogTitle>
-          <IconButton className="" onClick={handleCloseDeleteDialog}>
-            <Icon
-              className="text-red-600"
-              icon="material-symbols:close-rounded"
-              width={20}
-              height={20}
-            />
-          </IconButton>
-        </div>
-        <DialogContent>
-          <div className="">
-            <p className="text-gray-600 dark:text-gray-200">
-              Are you sure you want to delete {selectedDeleteItem?.name}?
-            </p>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseDeleteDialog}
-            color="primary"
-            className="font-poppins rounded-xl normal-case"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => handleDeleteItem(selectedDeleteItem)}
-            color="error"
-            className="font-poppins rounded-xl normal-case"
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CustomDialog
+        title="Delete this item"
+        message={`Are you sure you want to delete ${selectedDeleteItem?.name}?`}
+        openDialog={openDeleteDialog}
+        handleCloseDialog={handleCloseDeleteDialog}
+        selectedItem={selectedDeleteItem}
+        handleAction={handleDeleteItem}
+      />
       <ScrollTop />
     </div>
   );
