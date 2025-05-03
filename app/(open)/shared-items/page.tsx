@@ -16,6 +16,7 @@ import {
   // Fade,
   IconButton,
   Paper,
+  TextField,
   // useScrollTrigger,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
@@ -134,12 +135,31 @@ const SharedListPage = () => {
       <section className="container mx-auto">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Shared Items</h1>
-          <Link
-            href="/shared-items/create"
-            className="rounded-md bg-blue-500 px-4 py-2 text-white"
-          >
-            Create Item
-          </Link>
+          <TextField
+            placeholder="Search"
+            variant="outlined"
+            size="small"
+            className="w-full max-w-[300px]"
+            // onChange={(e) => {
+            //   const value = e.target.value.toLowerCase();
+            //   const filteredItems = defaultListItems.filter((item: any) =>
+            //     item?.name?.toLowerCase().includes(value) ||
+            //     item?.description?.short?.toLowerCase().includes(value),
+            //   );
+            //   setListItems(filteredItems);
+            // }}
+            // InputProps={{
+            //   endAdornment: (
+            //     <IconButton>
+            //       <Icon
+            //         icon="material-symbols:search-rounded"
+            //         width={20}
+            //         height={20}
+            //       />
+            //     </IconButton>
+            //   ),
+            // }}
+          />
         </div>
         <p className="mt-2 text-gray-600">
           This is the shared items page. Find all the items you can share with
