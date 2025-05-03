@@ -38,7 +38,7 @@ const MyClosedItemsPage = () => {
    ********************************************/
   function ScrollTop() {
     const trigger = useScrollTrigger({
-      target: window,
+      target: window ? window : undefined,
       disableHysteresis: true,
       threshold: 100,
     });

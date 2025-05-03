@@ -130,6 +130,13 @@
               "isRequired": false,
               "attributes": []
             },
+            "instruction": {
+              "name": "instruction",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "price": {
               "name": "price",
               "isArray": false,

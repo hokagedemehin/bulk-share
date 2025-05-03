@@ -34,6 +34,7 @@ import { useSharedItems } from "@/hooks/items";
 import dayjs from "dayjs";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { v4 as uuidv4 } from "uuid";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 const client = generateClient<Schema>();
 
@@ -81,12 +82,16 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
    * **********************************************/
   const [countryList, setCountryList] = useState([] as any);
   const [selectedCountry, setSelectedCountry] = useState("");
+  const [countryCode, setCountryCode] = useState("" as any);
+
   useEffect(() => {
     const tempArr: any = [];
 
     country_states.map((item: any) => {
       tempArr.push({
         id: item?.iso2,
+        iso3: item?.iso3,
+        iso2: item?.iso2,
         label: item?.name,
         value: item?.name,
         symbol: item?.currency_symbol,
@@ -126,6 +131,10 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const handleSelectedCurrency = (event: SelectChangeEvent<string>) => {
     const country = event.target.value;
     setSelectedCountry(country);
+    const findCountry = countryList.find((item: any) => item.value === country);
+    if (findCountry) {
+      setCountryCode(findCountry.iso2);
+    }
   };
 
   /*********************************************
@@ -312,6 +321,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
       isDigital: false,
       price: "",
       expiresAt: dayjs(dayjs().add(2, "day").toDate()),
+      instruction: "",
 
       currency: "",
       country: "",
@@ -371,6 +381,8 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
           "expiresAt",
           itemDetails.expiresAt ? dayjs(itemDetails.expiresAt) : dayjs(),
         );
+        setValue("instruction", itemDetails.instruction || "");
+
         setValue("isDigital", itemDetails.isDigital! || false);
         setValue("currency", itemDetails.currency! || "");
         setValue("country", itemDetails.country! || "");
@@ -462,6 +474,22 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
       return;
     }
 
+    const parsedPhonenumber = parsePhoneNumberFromString(
+      data.contactPhone,
+      countryCode,
+    );
+    console.log("parsedPhonenumber :>> ", parsedPhonenumber);
+    if (parsedPhonenumber?.isValid()) {
+      setValue("contactPhone", parsedPhonenumber?.number?.replace("+", ""));
+    } else {
+      setError("contactPhone", {
+        type: "manual",
+        message: "Invalid phone number",
+      });
+      app_dispatch(setCloseBackdrop());
+      return;
+    }
+
     let coverURL = "";
     const isImageExist =
       typeof itemImageUpload === "string" &&
@@ -510,6 +538,8 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
           short: data.shortDescription,
           long: data.longDescription,
         },
+        instruction: data.instruction,
+
         price: parseFloat(data.price),
         expiresAt: data.expiresAt,
         isDigital: data.isDigital,
@@ -792,6 +822,45 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     )}
                   />
                 </div>
+                {/* instruction */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="instruction"
+                    rules={{
+                      required: "Instruction is required",
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.instruction}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.instruction}
+                          className={`text-sm ${
+                            errors.instruction
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="instruction"
+                        >
+                          Instructions to Join
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          placeholder="Provide clear instructions on how to members can join."
+                          fullWidth
+                          error={!!errors.instruction}
+                          multiline
+                          rows={4}
+                          helperText={errors.instruction?.message || " "}
+                          size="small"
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
                 {/* country */}
                 <div className="">
                   <Controller
@@ -997,50 +1066,6 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     )}
                   />
                 </div>
-                {/* location */}
-                <div className="">
-                  <Controller
-                    control={control}
-                    name="location"
-                    rules={{
-                      // required: "Location is required",
-                      validate: (value) => {
-                        // if the product is not digital, location is required
-                        if (!digitalProduct && !value) {
-                          return "Location is required";
-                        }
-                      },
-                    }}
-                    render={({ field }) => (
-                      <FormControl
-                        fullWidth
-                        error={!!errors.location}
-                        className="space-y-1"
-                      >
-                        <FormLabel
-                          error={!!errors.location}
-                          className={`text-sm ${
-                            errors.location
-                              ? "text-red-400"
-                              : "text-gray-900 dark:text-white"
-                          }`}
-                          htmlFor="location"
-                        >
-                          Meet-up Location
-                        </FormLabel>
-                        <TextField
-                          {...field}
-                          fullWidth
-                          multiline
-                          rows={3}
-                          error={!!errors.location}
-                          size="small"
-                          helperText={errors.location?.message || " "}
-                        />
-                      </FormControl>
-                    )}
-                  />
-                </div>
               </div>
 
               <div className="space-y-2">
@@ -1095,6 +1120,50 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     )}
                   />
                 </div>
+                {/* location */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="location"
+                    rules={{
+                      // required: "Location is required",
+                      validate: (value) => {
+                        // if the product is not digital, location is required
+                        if (!digitalProduct && !value) {
+                          return "Location is required";
+                        }
+                      },
+                    }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.location}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.location}
+                          className={`text-sm ${
+                            errors.location
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="location"
+                        >
+                          Meet-up Location
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          fullWidth
+                          multiline
+                          rows={3}
+                          error={!!errors.location}
+                          size="small"
+                          helperText={errors.location?.message || " "}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
                 {/* short description */}
                 <div className="">
                   <Controller
@@ -1102,6 +1171,11 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     name="shortDescription"
                     rules={{
                       required: "Short description is required",
+                      maxLength: {
+                        value: 150,
+                        message:
+                          "Short description must be less than 150 characters",
+                      },
                     }}
                     render={({ field }) => (
                       <FormControl
@@ -1125,7 +1199,10 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           fullWidth
                           error={!!errors.shortDescription}
                           size="small"
-                          helperText={errors.shortDescription?.message || " "}
+                          helperText={
+                            errors.shortDescription?.message ||
+                            "max 150 characters"
+                          }
                         />
                       </FormControl>
                     )}
@@ -1163,7 +1240,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           size="small"
                           helperText={errors.longDescription?.message || " "}
                           multiline
-                          rows={4}
+                          rows={2}
                         />
                       </FormControl>
                     )}
@@ -1353,10 +1430,15 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           </FormLabel>
                           <TextField
                             {...field}
+                            type="tel"
+                            placeholder="Include country code"
                             fullWidth
                             error={!!errors.contactPhone}
                             size="small"
-                            helperText={errors.contactPhone?.message || " "}
+                            helperText={
+                              errors.contactPhone?.message ||
+                              "please include country code"
+                            }
                           />
                         </FormControl>
                       )}

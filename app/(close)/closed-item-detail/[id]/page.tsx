@@ -255,7 +255,7 @@ const ClosedItemDetailsPage = ({
                             // className="h-10 w-10"
                           />
                           <div className="w-[85%]">
-                            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            <p className="font-poppins text-sm font-semibold text-gray-900 capitalize md:text-base dark:text-white">
                               {member?.contactName}
                             </p>
                             <p className="font-poppins text-xs text-gray-500">
@@ -286,7 +286,7 @@ const ClosedItemDetailsPage = ({
                             // className="h-10 w-10"
                           />
                           <div className="w-[80%]">
-                            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            <p className="font-poppins text-sm font-semibold text-gray-900 capitalize md:text-base dark:text-white">
                               {member?.contactName}
                             </p>
                             <p className="font-poppins text-xs text-gray-500">

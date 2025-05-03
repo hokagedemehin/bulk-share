@@ -15,13 +15,10 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import { useSharedItems } from "@/hooks/items";
 import Image from "next/image";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
 import { generateClient } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
 import { enqueueSnackbar } from "notistack";
@@ -33,37 +30,9 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import CustomDialog from "@/components/layout/CustomDialog";
 import { Controller, useForm } from "react-hook-form";
+import { getAllISOCodes } from "iso-country-currency";
 
 const client = generateClient<Schema>();
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`members-tabpanel-${index}`}
-      aria-labelledby={`members-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `members-tab-${index}`,
-    "aria-controls": `members-tabpanel-${index}`,
-  };
-}
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -92,17 +61,40 @@ function stringAvatar(name: string) {
   };
 }
 
+const maskString = (str: string) => {
+  if (!str || str.length < 2) return "*";
+  return (
+    str[0].toLocaleUpperCase() +
+    "*".repeat(str.length - 2) +
+    str[str.length - 1]
+  );
+};
+
+const maskEmail = (email: string) => {
+  if (!email.includes("@")) return maskString(email);
+  const [local, domain] = email.split("@");
+  return maskString(local) + "@" + domain;
+};
+
+const maskPhone = (phone: string) => {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length <= 4) return digits;
+  const visiblePart = digits.slice(-4);
+  const maskedPart = "*".repeat(digits.length - 4);
+  return maskedPart + visiblePart;
+};
+
 const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   useCloseBackdrop();
   const backRouter = BackRouter();
   const { id } = use(params);
   const { getSingleItem } = useSharedItems();
   const app_dispatch = useAppDispatch();
+  const currencyList = useMemo(() => getAllISOCodes(), []);
 
   const [itemDetails, setItemDetails] = useState([] as any);
 
   const [confirmedMembers, setConfirmedMembers] = useState([] as any);
-  const [pendingMembers, setPendingMembers] = useState([] as any);
 
   // console.log("itemDetails :>> ", itemDetails);
 
@@ -114,104 +106,81 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
         const confirmed = data?.members?.filter(
           (member: any) => member.status === "confirmed",
         );
-        const pending = data?.members?.filter(
-          (member: any) => member.status === "pending",
-        );
         setConfirmedMembers(confirmed);
-        setPendingMembers(pending);
       }
     })();
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  /*********************************************************
-   * MEMBERS TAB
-   **********************************************************/
-
-  const [membersValue, setMembersValue] = React.useState(0);
-
-  const handleChange = (
-    event: React.SyntheticEvent,
-    newMembersValue: number,
-  ) => {
-    setMembersValue(newMembersValue);
-  };
-
   /*********************************************
-   * REMOVE MEMBER DIALOG
+   * REMOVE SELF DIALOG
    * **********************************************/
-  const [openRemoveMemberDialog, setOpenRemoveMemberDialog] = useState(false);
-  const [selectedMember, setSelectedMember] = useState(null as any);
+  const [openRemoveSelfDialog, setOpenRemoveSelfDialog] = useState(false);
+  const [selectedSelf, setSelectedSelf] = useState(null as any);
 
-  const handleOpenRemoveMemberDialog = (item: any) => {
-    setSelectedMember(item);
-    setOpenRemoveMemberDialog(true);
+  const handleOpenRemoveSelfDialog = (item: any) => {
+    setSelectedSelf(item);
+    setOpenRemoveSelfDialog(true);
   };
 
   const handleCloseRemoveDialog = () => {
-    setOpenRemoveMemberDialog(false);
-    setSelectedMember(null);
+    setOpenRemoveSelfDialog(false);
+    setSelectedSelf(null);
   };
 
-  const handleRemoveMember = async () => {
-    setOpenRemoveMemberDialog(false);
+  const handleRemoveSelf = async () => {
+    setOpenRemoveSelfDialog(false);
 
     try {
       app_dispatch(setOpenBackdrop());
       // move the member to removemMembers list
 
-      const { data: removedMember, errors } =
-        await client.models.ListItem.update({
+      const { data: removedSelf, errors } = await client.models.ListItem.update(
+        {
           id: itemDetails?.id,
           removedMembers: JSON.stringify([
             ...(itemDetails?.removedMembers || []),
             {
-              id: uuidv4(),
-              userSub: selectedMember?.userSub,
-              contactName: selectedMember?.contactName,
-              contactEmail: selectedMember?.contactEmail,
-              contactPhone: selectedMember?.contactPhone,
-              isOwner: selectedMember?.isOwner,
+              id: selectedSelf?.id,
+              userSub: selectedSelf?.userSub,
+              contactName: selectedSelf?.contactName,
+              contactEmail: selectedSelf?.contactEmail,
+              contactPhone: selectedSelf?.contactPhone,
+              isOwner: selectedSelf?.isOwner,
               status: "removed",
             },
           ]),
           members: JSON.stringify(
             itemDetails?.members?.filter(
-              (member: any) => member.id !== selectedMember?.id,
+              (member: any) => member.id !== selectedSelf?.id,
             ),
           ),
-        });
+        },
+      );
 
-      if (removedMember) {
+      if (removedSelf) {
         app_dispatch(setCloseBackdrop());
         // console.log("removedMember :>> ", removedMember);
-        enqueueSnackbar(
-          `${selectedMember?.contactName} has been removed from the group`,
-          {
-            variant: "success",
-          },
-        );
+        enqueueSnackbar(`You have been removed from the group successfully`, {
+          variant: "success",
+        });
         const parsedItem = {
-          ...removedMember,
-          members: JSON.parse(removedMember.members as string),
+          ...removedSelf,
+          members: JSON.parse(removedSelf.members as string),
           removedMembers: JSON.parse(
-            removedMember.removedMembers as string,
+            removedSelf.removedMembers as string,
           )?.filter((member: any) => member.status === "removed"),
-          otherImages: JSON.parse(removedMember.otherImages as string),
+          otherImages: JSON.parse(removedSelf.otherImages as string),
         };
         setItemDetails(parsedItem);
 
         const confirmed = parsedItem?.members?.filter(
           (member: any) => member.status === "confirmed",
         );
-        const pending = parsedItem?.members?.filter(
-          (member: any) => member.status === "pending",
-        );
         setConfirmedMembers(confirmed);
-        setPendingMembers(pending);
-        setSelectedMember(null);
-        setOpenRemoveMemberDialog(false);
+        setSelectedSelf(null);
+        setOpenRemoveSelfDialog(false);
         return;
       }
 
@@ -233,94 +202,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   };
 
   /*********************************************
-   * CONFIRM MEMBER DIALOG
-   * **********************************************/
-  const [openConfirmMemberDialog, setOpenConfirmMemberDialog] = useState(false);
-  const [selectedConfirmMember, setSelectedConfirmMember] = useState(
-    null as any,
-  );
-  const handleOpenConfirmMemberDialog = (item: any) => {
-    setSelectedConfirmMember(item);
-    setOpenConfirmMemberDialog(true);
-  };
-  const handleCloseConfirmDialog = () => {
-    setOpenConfirmMemberDialog(false);
-    setSelectedConfirmMember(null);
-  };
-  const handleAcceptMember = async () => {
-    setOpenConfirmMemberDialog(false);
-
-    try {
-      app_dispatch(setOpenBackdrop());
-      // change member status to confirmed
-
-      const { data: acceptedMember, errors } =
-        await client.models.ListItem.update({
-          id: itemDetails?.id,
-          members: JSON.stringify(
-            itemDetails?.members?.map((member: any) => {
-              if (member.id === selectedConfirmMember?.id) {
-                return {
-                  ...member,
-                  status: "confirmed",
-                };
-              }
-              return member;
-            }),
-          ),
-        });
-
-      if (acceptedMember) {
-        app_dispatch(setCloseBackdrop());
-        // console.log("acceptedMember :>> ", acceptedMember);
-        enqueueSnackbar(
-          `${selectedConfirmMember?.contactName} has been accepted to the group`,
-          {
-            variant: "success",
-          },
-        );
-        const parsedItem = {
-          ...acceptedMember,
-          members: JSON.parse(acceptedMember.members as string),
-          otherImages: JSON.parse(acceptedMember.otherImages as string),
-          removedMembers: JSON.parse(
-            acceptedMember.removedMembers as string,
-          )?.filter((member: any) => member.status === "removed"),
-        };
-        setItemDetails(parsedItem);
-
-        const confirmed = parsedItem?.members?.filter(
-          (member: any) => member.status === "confirmed",
-        );
-        const pending = parsedItem?.members?.filter(
-          (member: any) => member.status === "pending",
-        );
-        setConfirmedMembers(confirmed);
-        setPendingMembers(pending);
-        setSelectedConfirmMember(null);
-        setOpenConfirmMemberDialog(false);
-        return;
-      }
-
-      if (errors) {
-        app_dispatch(setCloseBackdrop());
-        console.error("Error accepting member", errors);
-        enqueueSnackbar("Error accepting member. Please try again.", {
-          variant: "error",
-        });
-        return;
-      }
-    } catch (error) {
-      app_dispatch(setCloseBackdrop());
-      console.error("Error accepting member", error);
-      enqueueSnackbar("Error accepting member. Please try again.", {
-        variant: "error",
-      });
-    }
-  };
-
-  /*********************************************
-   * ADD MEMBER DIALOG
+   * ADD SELF DIALOG
    * **********************************************/
   const {
     control,
@@ -339,62 +221,57 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
       isOwner: false,
     },
   });
-  const [openAddMemberDialog, setOpenAddMemberDialog] = useState(false);
-  const handleOpenAddMemberDialog = () => {
-    setOpenAddMemberDialog(true);
+  const [openAddSelfDialog, setOpenAddSelfDialog] = useState(false);
+  const handleOpenAddSelfDialog = () => {
+    setOpenAddSelfDialog(true);
   };
-  const handleCloseAddDialog = () => {
-    setOpenAddMemberDialog(false);
+  const handleCloseAddSelfDialog = () => {
+    setOpenAddSelfDialog(false);
   };
   const onSubmit = async (data: any) => {
-    setOpenAddMemberDialog(false);
+    setOpenAddSelfDialog(false);
 
     try {
       app_dispatch(setOpenBackdrop());
       // add member to the group
 
-      const { data: addedMember, errors } = await client.models.ListItem.update(
-        {
-          id: itemDetails?.id,
-          members: JSON.stringify([
-            ...(itemDetails?.members || []),
-            {
-              id: uuidv4(),
-              userSub: uuidv4(),
-              contactName: data?.contactName,
-              contactEmail: data?.contactEmail,
-              contactPhone: data?.contactPhone,
-              isOwner: data?.isOwner,
-              status: "confirmed",
-            },
-          ]),
-        },
-      );
+      const { data: addSelf, errors } = await client.models.ListItem.update({
+        id: itemDetails?.id,
+        members: JSON.stringify([
+          ...(itemDetails?.members || []),
+          {
+            id: uuidv4(),
+            userSub: uuidv4(),
+            contactName: data?.contactName,
+            contactEmail: data?.contactEmail,
+            contactPhone: data?.contactPhone,
+            isOwner: data?.isOwner,
+            status: "pending",
+          },
+        ]),
+      });
 
-      if (addedMember) {
+      if (addSelf) {
         app_dispatch(setCloseBackdrop());
-        enqueueSnackbar(`${data?.contactName} has been added to the group`, {
+        enqueueSnackbar(`Your request has been sent for confirmation`, {
           variant: "success",
+          autoHideDuration: 6000,
         });
         const parsedItem = {
-          ...addedMember,
-          members: JSON.parse(addedMember.members as string),
-          otherImages: JSON.parse(addedMember.otherImages as string),
-          removedMembers: JSON.parse(
-            addedMember.removedMembers as string,
-          )?.filter((member: any) => member.status === "removed"),
+          ...addSelf,
+          members: JSON.parse(addSelf.members as string),
+          otherImages: JSON.parse(addSelf.otherImages as string),
+          removedMembers: JSON.parse(addSelf.removedMembers as string)?.filter(
+            (member: any) => member.status === "removed",
+          ),
         };
         setItemDetails(parsedItem);
 
         const confirmed = parsedItem?.members?.filter(
           (member: any) => member.status === "confirmed",
         );
-        const pending = parsedItem?.members?.filter(
-          (member: any) => member.status === "pending",
-        );
         setConfirmedMembers(confirmed);
-        setPendingMembers(pending);
-        setOpenAddMemberDialog(false);
+        setOpenAddSelfDialog(false);
         reset();
         return;
       }
@@ -432,6 +309,21 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
     }));
   };
 
+  const handleWhatsappRedirect = () => {
+    const message = `Hi, I’d like to know more details about ${itemDetails?.name}`;
+    const url = `https://wa.me/${itemDetails?.contactPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  };
+
+  const handleMailRedirect = () => {
+    const subject = `Inquiry about ${itemDetails?.name}`;
+    const body = `Hi, I’d like to know more details about ${itemDetails?.name}`;
+    const mailtoLink = `mailto:${itemDetails?.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    window.open(mailtoLink, "_blank");
+    // window.location.href = mailtoLink;
+  };
+
   return (
     <div className="px-2">
       <section className="container mx-auto my-5">
@@ -455,6 +347,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           </p>
         </div>
       </section>
+      {/* members */}
       <section className="container mx-auto my-5">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* image */}
@@ -475,17 +368,13 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <h4 className="text-xl font-bold md:text-2xl">Members</h4>
-                <p className="dark:text-gray-600md:text-base ml-2 text-sm text-gray-400">
-                  ({itemDetails?.members?.length})
-                </p>
               </div>
               <div className="">
                 <Button
                   variant="outlined"
                   className="hidden rounded-full normal-case md:flex"
                   onClick={() => {
-                    // backRouter("/add-member");
-                    handleOpenAddMemberDialog();
+                    handleOpenAddSelfDialog();
                   }}
                   startIcon={
                     <Icon
@@ -496,15 +385,14 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                     />
                   }
                 >
-                  <span className="text-sm font-semibold">Add Member</span>
+                  <span className="text-sm font-semibold">Join</span>
                 </Button>
                 <IconButton
                   aria-label="add member"
                   name="add-member"
                   className="flex rounded-full bg-gray-200 p-2 text-gray-900 md:hidden dark:bg-gray-600 dark:text-white"
                   onClick={() => {
-                    // backRouter("/add-member");
-                    handleOpenAddMemberDialog();
+                    handleOpenAddSelfDialog();
                   }}
                 >
                   <Icon
@@ -517,159 +405,244 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
               </div>
             </div>
             <div className="">
-              <Tabs
-                value={membersValue}
-                onChange={handleChange}
-                aria-label="members tabs"
-              >
-                <Tab label="Confirmed" {...a11yProps(0)} />
-                <Tab label="Pending" {...a11yProps(1)} />
-              </Tabs>
-              <CustomTabPanel value={membersValue} index={0}>
-                <div className="h-[25vh] overflow-y-auto">
-                  {confirmedMembers?.length > 0 &&
-                    confirmedMembers?.map((member: any, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between space-x-3 border-b border-gray-200 py-2 dark:border-gray-600"
-                      >
-                        <div className="flex w-full items-center space-x-2">
-                          <Avatar
-                            {...stringAvatar(member?.contactName)}
-                            alt={member?.contactName}
+              <div className="h-[28vh] overflow-y-auto">
+                {confirmedMembers?.length > 0 &&
+                  confirmedMembers?.map((member: any, index: number) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between space-x-3 border-b border-gray-200 py-2 dark:border-gray-600"
+                    >
+                      <div className="flex w-full items-center space-x-2">
+                        <Avatar
+                          {...stringAvatar(member?.contactName)}
+                          alt={member?.contactName}
 
-                            // className="h-10 w-10"
-                          />
-                          <div className="w-[85%]">
-                            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
-                              {member?.contactName}
-                            </p>
-                            <p className="font-poppins text-xs text-gray-500">
-                              {member?.contactEmail}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {member?.contactPhone}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="">
-                          {!member?.isOwner && (
-                            <>
-                              <IconButton
-                                aria-label="delete"
-                                className="rounded-full bg-red-500 p-2 text-white transition duration-300 ease-in-out hover:bg-red-600"
-                                onClick={() => {
-                                  handleOpenRemoveMemberDialog(member);
-                                }}
-                              >
-                                <Icon
-                                  icon="material-symbols:delete-outline"
-                                  className="text-white"
-                                  width={20}
-                                  height={20}
-                                />
-                              </IconButton>
-                            </>
-                          )}
+                          // className="h-10 w-10"
+                        />
+                        <div className="w-[80%]">
+                          <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            {member?.isOwner
+                              ? member?.contactName
+                              : maskString(member?.contactName)}
+                          </p>
+                          <p className="font-poppins text-xs text-gray-500">
+                            {member?.isOwner
+                              ? member?.contactEmail
+                              : `${maskEmail(member?.contactEmail)}`}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {member?.isOwner
+                              ? member?.contactPhone
+                              : `${maskPhone(member?.contactPhone)}`}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                </div>
-              </CustomTabPanel>
-              <CustomTabPanel value={membersValue} index={1}>
-                <div className="h-[25vh] overflow-y-auto">
-                  {pendingMembers?.length > 0 &&
-                    pendingMembers?.map((member: any, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between space-x-3 border-b border-gray-200 py-2 dark:border-gray-600"
-                      >
-                        <div className="flex w-full items-center space-x-2">
-                          <Avatar
-                            {...stringAvatar(member?.contactName)}
-                            alt={member?.contactName}
-
-                            // className="h-10 w-10"
-                          />
-                          <div className="w-[80%]">
-                            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
-                              {member?.contactName}
-                            </p>
-                            <p className="font-poppins text-xs text-gray-500">
-                              {member?.contactEmail}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {member?.contactPhone}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="">
-                          {!member?.isOwner && (
-                            <div className="flex items-center space-x-3">
+                      <div className="">
+                        {member?.isOwner && (
+                          <div className="flex items-center space-x-3">
+                            {itemDetails?.contactPhone && (
                               <IconButton
                                 aria-label="accept"
-                                className="rounded-full bg-green-500 p-2 text-white transition duration-300 ease-in-out hover:bg-green-600"
+                                className="rounded-full bg-[#25D366] p-2 text-white transition duration-300 ease-in-out"
                                 onClick={() => {
-                                  handleOpenConfirmMemberDialog(member);
+                                  handleWhatsappRedirect();
                                 }}
                               >
                                 <Icon
-                                  icon="material-symbols:check"
+                                  icon="ic:outline-whatsapp"
                                   className="text-white"
                                   width={20}
                                   height={20}
                                 />
                               </IconButton>
+                            )}
+                            {itemDetails?.contactEmail && (
                               <IconButton
                                 aria-label="delete"
-                                className="rounded-full bg-red-500 p-2 text-white transition duration-300 ease-in-out hover:bg-red-600"
+                                className="rounded-full bg-blue-500 p-2 text-white transition duration-300 ease-in-out"
                                 onClick={() => {
-                                  handleOpenRemoveMemberDialog(member);
+                                  handleMailRedirect();
                                 }}
                               >
                                 <Icon
-                                  icon="material-symbols:delete-outline"
+                                  icon="fluent:mail-28-regular"
                                   className="text-white"
                                   width={20}
                                   height={20}
                                 />
                               </IconButton>
-                            </div>
-                          )}
-                        </div>
+                            )}
+                          </div>
+                        )}
+                        {!member?.isOwner && (
+                          <div className="flex items-center space-x-3">
+                            <IconButton
+                              aria-label="delete"
+                              className="rounded-full bg-red-500 p-2 text-white transition duration-300 ease-in-out hover:bg-red-600"
+                              onClick={() => {
+                                handleOpenRemoveSelfDialog(member);
+                              }}
+                            >
+                              <Icon
+                                icon="material-symbols:delete-outline"
+                                className="text-white"
+                                width={20}
+                                height={20}
+                              />
+                            </IconButton>
+                          </div>
+                        )}
                       </div>
-                    ))}
-                </div>
-              </CustomTabPanel>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
-      {/* delete member dialog */}
+      {/* item details */}
+      <section className="container mx-auto mt-5">
+        {/* instructions */}
+        <div className="my-4">
+          <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+            Instructions for this item
+          </p>
+          <p className="font-poppins text-sm text-gray-500 md:text-base">
+            {itemDetails?.instruction ? itemDetails?.instruction : "-"}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-5">
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Item Name
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.name}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Short Description
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.description?.short}
+              </p>
+            </div>
+          </div>
+          <div className="space-y-5">
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Price
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {
+                  currencyList.find(
+                    (currency: any) =>
+                      currency.currency === itemDetails?.currency,
+                  )?.symbol
+                }
+                {new Intl.NumberFormat("en-US").format(itemDetails?.price)}{" "}
+                {itemDetails?.price > 0 && (
+                  <span className="text-sm text-gray-500 dark:text-gray-300">
+                    (
+                    {
+                      currencyList.find(
+                        (currency: any) =>
+                          currency.currency === itemDetails?.currency,
+                      )?.symbol
+                    }
+                    {itemDetails?.peopleRequired > 1 &&
+                      new Intl.NumberFormat("en-US", {
+                        maximumFractionDigits: 2,
+                      }).format(
+                        itemDetails?.price / itemDetails?.peopleRequired,
+                      )}{" "}
+                    per person)
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Meet up location
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.location ? itemDetails?.location : "-"}
+              </p>
+            </div>
+          </div>
+          <div className="space-y-5">
+            <div className=""></div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                People Limit
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.peopleRequired}
+              </p>
+            </div>
+            <div className="">
+              <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                Status
+              </p>
+              <p className="font-poppins text-sm text-gray-500 md:text-base">
+                {itemDetails?.status === "active" ? "Active" : "Inactive"}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="my-4">
+          <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+            Long Description
+          </p>
+          <p className="font-poppins text-sm text-gray-500 md:text-base">
+            {itemDetails?.description?.long}
+          </p>
+        </div>
+      </section>
+      {/* other images */}
+      <section className="container mx-auto my-5 border-t border-gray-200 pt-5 dark:border-gray-600">
+        <div className="overflow-x-auto">
+          <h1 className="mb-3 text-2xl font-bold text-gray-900 dark:text-white">
+            More Images
+          </h1>
+          {itemDetails?.otherImages?.length > 0 &&
+            itemDetails?.otherImages?.some((image: any) => image === "") && (
+              <p className="mt-10 mb-8 text-center text-sm text-gray-500">
+                You don&apos;t have any other images for this item yet.
+              </p>
+            )}
+          <div className="flex space-x-3 overflow-x-auto">
+            {itemDetails?.otherImages?.length > 0 &&
+              itemDetails?.otherImages?.every((image: any) => image !== "") &&
+              itemDetails?.otherImages?.map((image: any, index: number) => (
+                <Image
+                  key={index}
+                  src={image}
+                  alt={itemDetails?.name}
+                  width={1500}
+                  height={1000}
+                  className="h-[30vh] min-w-[300px] rounded-lg object-contain md:h-[50vh] md:min-w-[500px]"
+                />
+              ))}
+          </div>
+        </div>
+      </section>
+      {/* delete myself dialog */}
       <CustomDialog
         title="Remove Member"
-        message={`Are you sure you want to remove ${selectedMember?.contactName} from this group?`}
+        message={`Are you sure you want to remove yourself from this group?`}
         buttonText="Remove"
-        openDialog={openRemoveMemberDialog}
+        openDialog={openRemoveSelfDialog}
         handleCloseDialog={handleCloseRemoveDialog}
-        selectedItem={selectedMember}
-        handleAction={handleRemoveMember}
+        selectedItem={selectedSelf}
+        handleAction={handleRemoveSelf}
       />
-      {/* confirm member dialog */}
-      <CustomDialog
-        title="Confirm Member"
-        message={`Are you sure you want to accept ${selectedConfirmMember?.contactName} to this group?`}
-        buttonText="Accept"
-        buttonColor="success"
-        openDialog={openConfirmMemberDialog}
-        handleCloseDialog={handleCloseConfirmDialog}
-        selectedItem={selectedConfirmMember}
-        handleAction={handleAcceptMember}
-      />
-      {/* add member dialog */}
+      {/* add myself dialog */}
       <Dialog
-        open={openAddMemberDialog}
-        onClose={handleCloseAddDialog}
+        open={openAddSelfDialog}
+        onClose={handleCloseAddSelfDialog}
         maxWidth="sm"
         fullWidth
         slotProps={{
@@ -684,9 +657,9 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
       >
         <div className="flex items-center justify-between px-2">
           <DialogTitle className="font-poppins text-xl font-bold">
-            Add Member
+            Join this group
           </DialogTitle>
-          <IconButton className="" onClick={handleCloseAddDialog}>
+          <IconButton className="" onClick={handleCloseAddSelfDialog}>
             <Icon
               className="text-red-600"
               icon="material-symbols:close-rounded"
@@ -720,7 +693,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       }`}
                       htmlFor="contactName"
                     >
-                      Member&apos;s Full Name
+                      Full Name
                     </FormLabel>
                     <TextField
                       {...field}
@@ -896,7 +869,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           <Button
             variant="text"
             className="rounded-full normal-case"
-            onClick={handleCloseAddDialog}
+            onClick={handleCloseAddSelfDialog}
             color="error"
           >
             <span className="text-sm font-semibold">Cancel</span>
@@ -907,7 +880,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
             onClick={handleSubmit(onSubmit)}
             color="success"
           >
-            <span className="text-sm font-semibold">Add Member</span>
+            <span className="text-sm font-semibold">Join</span>
           </Button>
         </DialogActions>
       </Dialog>

@@ -76,7 +76,10 @@ export default function MainLayout({
     <>
       <main className="flex min-h-screen flex-col justify-between">
         <div className="">
-          <header className="bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900">
+          <header
+            id="back-to-top-anchor"
+            className="fixed top-0 z-50 w-full bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900"
+          >
             {/* large screen */}
             <div className="container mx-auto hidden items-center justify-between md:flex">
               <div className="flex items-center">

@@ -1,9 +1,10 @@
 "use client";
+import { Amplify } from "aws-amplify";
+import "@aws-amplify/ui-react/styles.css";
+import outputs from "@/amplify_outputs.json";
+
 import { useCloseBackdrop } from "@/hooks/backdrop";
-import {
-  setCloseBackdrop,
-  setOpenBackdrop,
-} from "@/util/store/slice/backdropSlice";
+import { setOpenBackdrop } from "@/util/store/slice/backdropSlice";
 import { useAppDispatch } from "@/util/store/store";
 import {
   Box,
@@ -18,7 +19,6 @@ import {
   useScrollTrigger,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useSharedItems } from "@/hooks/items";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -41,29 +41,41 @@ import {
   XIcon,
 } from "react-share";
 
-import { type Schema } from "@/amplify/data/resource";
-import { generateClient } from "aws-amplify/api";
 import { getAllISOCodes } from "iso-country-currency";
-import { enqueueSnackbar } from "notistack";
 import Link from "next/link";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import CustomDialog from "@/components/layout/CustomDialog";
 
-const client = generateClient<Schema>();
-const MyListPage = () => {
+Amplify.configure(outputs);
+
+const SharedListPage = () => {
   useCloseBackdrop();
-  const app_dispatch = useAppDispatch();
-  const router = useRouter();
+  const { allListItems } = useSharedItems();
   const currencyList = useMemo(() => getAllISOCodes(), []);
+  const app_dispatch = useAppDispatch();
+
+  /********************************************
+   * LIST ITMES
+   ********************************************/
+  const [listItems, setListItems] = useState([] as any);
+  const [defaultListItems, setDefaultListItems] = useState([] as any);
+  console.log("defaultListItems", defaultListItems);
+
+  useEffect(() => {
+    if (allListItems) {
+      const filterItems = allListItems.filter(
+        (item: any) => item.visibleTo === "everyone",
+      );
+      setListItems(filterItems);
+      setDefaultListItems(filterItems);
+    }
+
+    return () => {};
+  }, [allListItems]);
 
   /********************************************
    * BACK TO TOP BUTTON
    ********************************************/
   function ScrollTop() {
-    // const { children, window } = props;
-    // Note that you normally won't need to set the window ref as useScrollTrigger
-    // will default to window.
-    // This is only being set here because the demo is in an iframe.
     const trigger = useScrollTrigger({
       target: window ? window : undefined,
       disableHysteresis: true,
@@ -97,49 +109,6 @@ const MyListPage = () => {
     );
   }
 
-  // console.log("currencyList :>> ", currencyList);
-
-  const { getMyItems } = useSharedItems();
-
-  const [myListItems, setMyListItems] = useState<Schema["ListItem"]["type"][]>(
-    [],
-  );
-  const [activeItems, setActiveItems] = useState<Schema["ListItem"]["type"][]>(
-    [],
-  );
-  const [closedItemsLength, setClosedItemsLength] = useState(0);
-  // console.log("myListItems :>> ", myListItems);
-
-  useEffect(() => {
-    let listSub1: { unsubscribe: () => void } | null = null;
-
-    const fetchItems = async () => {
-      listSub1 = await getMyItems(setMyListItems);
-    };
-
-    fetchItems();
-
-    return () => {
-      if (listSub1) {
-        listSub1.unsubscribe();
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useMemo(() => {
-    if (myListItems.length > 0) {
-      const filteredItems = myListItems.filter(
-        (item) => item.visible && item.visibleTo === "everyone",
-      );
-      setActiveItems(filteredItems);
-      const closedItems = myListItems.filter(
-        (item) => item.visible && item.visibleTo === "owner",
-      );
-      setClosedItemsLength(closedItems.length);
-    }
-  }, [myListItems]);
-
   /*********************************************
    * SHARE DIALOG
    * **********************************************/
@@ -160,91 +129,25 @@ const MyListPage = () => {
   const shareTitle = `Join this item group on Bulk Share and save money by buying in bulk!`;
   const description = `Join this item group on Bulk Share and save money by buying in bulk!`;
 
-  /*********************************************
-   * DELETE ITEM DIALOG
-   * **********************************************/
-  const [selectedDeleteItem, setSelectedDeleteItem] = useState(null as any);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-
-  const handleOpenDeleteDialog = (item: any) => {
-    setOpenDeleteDialog(true);
-    setSelectedDeleteItem(item);
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setOpenDeleteDialog(false);
-    setSelectedDeleteItem(null);
-  };
-
-  const handleDeleteItem = async (item: any) => {
-    setOpenDeleteDialog(false);
-    try {
-      app_dispatch(setOpenBackdrop());
-      const { data, errors } = await client.models.ListItem.update({
-        id: item?.id,
-        visible: false,
-        visibleTo: "none",
-      });
-      handleCloseDeleteDialog();
-      if (data) {
-        app_dispatch(setCloseBackdrop());
-        enqueueSnackbar("Item deleted successfully.", {
-          variant: "success",
-        });
-      }
-      if (errors) {
-        app_dispatch(setCloseBackdrop());
-        console.error("Error deleting item", errors);
-        enqueueSnackbar("Error deleting item. Please try again.", {
-          variant: "error",
-        });
-        return;
-      }
-    } catch (error) {
-      app_dispatch(setCloseBackdrop());
-      enqueueSnackbar("Error deleting item. Please try again.", {
-        variant: "error",
-      });
-      console.error("Error deleting item", error);
-    }
-  };
-
   return (
-    <div className="">
-      <section className="container mx-auto my-5 px-3 md:px-1">
+    <div className="mt-4 px-2">
+      <section className="container mx-auto">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">My List</h1>
-          <div className="flex items-center space-x-3">
-            {closedItemsLength > 0 && (
-              <Link
-                href="/my-closed-list"
-                className="rounded-xl border border-red-700 px-5 py-2 text-sm text-red-700 transition duration-300 ease-in-out hover:bg-red-50 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-50/10"
-                onClick={() => {
-                  app_dispatch(setOpenBackdrop());
-                }}
-              >
-                Closed items
-              </Link>
-            )}
-            <Button
-              variant="contained"
-              color="primary"
-              className="font-poppins rounded-xl"
-              onClick={() => {
-                app_dispatch(setOpenBackdrop());
-                router.push("/create-new-item");
-              }}
-            >
-              Add New Item
-            </Button>
-          </div>
+          <h1 className="text-2xl font-bold">Shared Items</h1>
+          <Link
+            href="/shared-items/create"
+            className="rounded-md bg-blue-500 px-4 py-2 text-white"
+          >
+            Create Item
+          </Link>
         </div>
         <p className="mt-2 text-gray-600">
-          This is the my list page. You can manage your list here.
+          This is the shared items page. Find all the items you can share with
+          your friends and family.
         </p>
       </section>
-      <section className="px-3 md:px-1">
-        {activeItems.length === 0 && (
+      <section className="">
+        {listItems.length === 0 && (
           <section className="container mx-auto flex h-[50vh] flex-col items-center justify-center">
             <Image
               src="/emptylist1.png"
@@ -254,13 +157,13 @@ const MyListPage = () => {
               className="h-auto w-full max-w-[400px] rounded-2xl object-cover"
             />
             <h1 className="text-2xl font-bold text-gray-500">
-              No items found. Please add an item.
+              No active items available for now. Please check back later.
             </h1>
           </section>
         )}
-        {activeItems.length > 0 && (
+        {listItems.length > 0 && (
           <section className="container mx-auto my-5 mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {activeItems.map((item: any) => (
+            {listItems.map((item: any) => (
               <Paper
                 key={item?.id}
                 elevation={3}
@@ -280,44 +183,37 @@ const MyListPage = () => {
                   <p className="mt-2 truncate text-gray-500 dark:text-gray-400">
                     {item?.description?.short}
                   </p>
-                  <p className="font-poppins mt-2 text-lg text-gray-600 dark:text-white">
-                    {
-                      currencyList.find(
-                        (currency: any) => currency.currency === item?.currency,
-                      )?.symbol
-                    }
-                    {new Intl.NumberFormat(
-                      "en-US",
-                      // `en-${
-                      //   currencyList.find(
-                      //     (currency: any) =>
-                      //       currency.currency === item?.currency,
-                      //   )?.iso
-                      // }`,
-                      // {
-                      //   style: "currency",
-                      //   currency: item?.currency,
-                      // },
-                    ).format(item?.price)}
-                  </p>
-                  <p className="mt-2 text-gray-500 dark:text-gray-400">
-                    {item?.members?.length - 1} members joined
-                  </p>
+                  <div className="flex items-center">
+                    <p className="font-poppins mt-2 text-lg text-gray-600 dark:text-white">
+                      {
+                        currencyList.find(
+                          (currency: any) =>
+                            currency.currency === item?.currency,
+                        )?.symbol
+                      }
+                      {new Intl.NumberFormat("en-US").format(item?.price)}{" "}
+                      {item?.price > 0 && (
+                        <span className="text-sm text-gray-500 dark:text-gray-300">
+                          (
+                          {
+                            currencyList.find(
+                              (currency: any) =>
+                                currency.currency === item?.currency,
+                            )?.symbol
+                          }
+                          {item?.peopleRequired > 1 &&
+                            new Intl.NumberFormat("en-US", {
+                              maximumFractionDigits: 2,
+                            }).format(item?.price / item?.peopleRequired)}{" "}
+                          per person)
+                        </span>
+                      )}
+                    </p>
+
+                    <p className="text-xs text-gray-400 md:text-sm dark:text-gray-700"></p>
+                  </div>
                   <div className="mt-4 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <IconButton
-                        className="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
-                        onClick={() => {
-                          handleOpenDeleteDialog(item);
-                        }}
-                      >
-                        <Icon
-                          className="text-red-600"
-                          icon="weui:delete-on-outlined"
-                          width={20}
-                          height={20}
-                        />
-                      </IconButton>
                       <IconButton
                         className="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
                         onClick={() => {
@@ -335,16 +231,7 @@ const MyListPage = () => {
 
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/edit-item/${item?.id}`}
-                        className="rounded-xl border border-sky-700 px-5 py-2 text-sm text-sky-700 transition duration-300 ease-in-out hover:bg-sky-50 dark:border-sky-500 dark:text-sky-500 dark:hover:bg-sky-50/10"
-                        onClick={() => {
-                          app_dispatch(setOpenBackdrop());
-                        }}
-                      >
-                        Edit
-                      </Link>
-                      <Link
-                        href={`/my-item/${item?.id}`}
+                        href={`/item/${item?.id}`}
                         className="rounded-xl border border-green-700 px-5 py-2 text-sm text-green-700 transition duration-300 ease-in-out hover:bg-green-50 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-50/10"
                         onClick={() => {
                           app_dispatch(setOpenBackdrop());
@@ -467,18 +354,9 @@ const MyListPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {/* delete dialog */}
-      <CustomDialog
-        title="Delete this item"
-        message={`Are you sure you want to delete ${selectedDeleteItem?.name}?`}
-        openDialog={openDeleteDialog}
-        handleCloseDialog={handleCloseDeleteDialog}
-        selectedItem={selectedDeleteItem}
-        handleAction={handleDeleteItem}
-      />
       <ScrollTop />
     </div>
   );
 };
 
-export default MyListPage;
+export default SharedListPage;
