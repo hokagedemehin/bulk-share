@@ -173,7 +173,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           removedMembers: JSON.stringify([
             ...(itemDetails?.removedMembers || []),
             {
-              id: uuidv4(),
+              id: selectedMember?.id,
               userSub: selectedMember?.userSub,
               contactName: selectedMember?.contactName,
               contactEmail: selectedMember?.contactEmail,
@@ -588,7 +588,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                             // className="h-10 w-10"
                           />
                           <div className="w-[85%]">
-                            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            <p className="font-poppins text-sm font-semibold text-gray-900 capitalize md:text-base dark:text-white">
                               {member?.contactName}
                             </p>
                             <p className="font-poppins text-xs text-gray-500">
@@ -639,7 +639,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                             // className="h-10 w-10"
                           />
                           <div className="w-[80%]">
-                            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            <p className="font-poppins text-sm font-semibold text-gray-900 capitalize md:text-base dark:text-white">
                               {member?.contactName}
                             </p>
                             <p className="font-poppins text-xs text-gray-500">
@@ -699,6 +699,15 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
       </section>
       {/* item details */}
       <section className="container mx-auto mt-5">
+        {/* instructions */}
+        <div className="my-4">
+          <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+            Instructions for this item
+          </p>
+          <p className="font-poppins text-sm text-gray-500 md:text-base">
+            {itemDetails?.instruction ? itemDetails?.instruction : "-"}
+          </p>
+        </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div className="flex flex-col space-y-5">
             <div className="">
@@ -808,7 +817,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   alt={itemDetails?.name}
                   width={1500}
                   height={1000}
-                  className="h-auto min-w-[300px] rounded-lg object-cover shadow-md md:min-w-[500px]"
+                  className="h-[30vh] min-w-[300px] rounded-lg object-contain md:h-[50vh] md:min-w-[500px]"
                 />
               ))}
           </div>
