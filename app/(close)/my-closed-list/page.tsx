@@ -6,12 +6,12 @@ import {
 } from "@/util/store/slice/backdropSlice";
 import { useAppDispatch } from "@/util/store/store";
 import {
-  Box,
-  Fab,
-  Fade,
+  // Box,
+  // Fab,
+  // Fade,
   IconButton,
   Paper,
-  useScrollTrigger,
+  // useScrollTrigger,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSharedItems } from "@/hooks/items";
@@ -23,7 +23,7 @@ import { generateClient } from "aws-amplify/api";
 import { getAllISOCodes } from "iso-country-currency";
 import { enqueueSnackbar } from "notistack";
 import Link from "next/link";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+// import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CustomDialog from "@/components/layout/CustomDialog";
 
 const client = generateClient<Schema>();
@@ -36,39 +36,39 @@ const MyClosedItemsPage = () => {
   /********************************************
    * BACK TO TOP BUTTON
    ********************************************/
-  function ScrollTop() {
-    const trigger = useScrollTrigger({
-      target: window ? window : undefined,
-      disableHysteresis: true,
-      threshold: 100,
-    });
+  // function ScrollTop() {
+  //   const trigger = useScrollTrigger({
+  //     target: window ? window : undefined,
+  //     disableHysteresis: true,
+  //     threshold: 100,
+  //   });
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-      const anchor = (
-        (event.target as HTMLDivElement).ownerDocument || document
-      ).querySelector("#back-to-top-anchor");
+  //   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  //     const anchor = (
+  //       (event.target as HTMLDivElement).ownerDocument || document
+  //     ).querySelector("#back-to-top-anchor");
 
-      if (anchor) {
-        anchor.scrollIntoView({
-          block: "center",
-        });
-      }
-    };
+  //     if (anchor) {
+  //       anchor.scrollIntoView({
+  //         block: "center",
+  //       });
+  //     }
+  //   };
 
-    return (
-      <Fade in={trigger}>
-        <Box
-          onClick={handleClick}
-          role="presentation"
-          sx={{ position: "fixed", bottom: 16, right: 16 }}
-        >
-          <Fab size="small" aria-label="scroll back to top">
-            <KeyboardArrowUpIcon />
-          </Fab>
-        </Box>
-      </Fade>
-    );
-  }
+  //   return (
+  //     <Fade in={trigger}>
+  //       <Box
+  //         onClick={handleClick}
+  //         role="presentation"
+  //         sx={{ position: "fixed", bottom: 16, right: 16 }}
+  //       >
+  //         <Fab size="small" aria-label="scroll back to top">
+  //           <KeyboardArrowUpIcon />
+  //         </Fab>
+  //       </Box>
+  //     </Fade>
+  //   );
+  // }
 
   const { getMyItems } = useSharedItems();
 
@@ -268,7 +268,7 @@ const MyClosedItemsPage = () => {
         selectedItem={selectedDeleteItem}
         handleAction={handleDeleteItem}
       />
-      <ScrollTop />
+      {/* <ScrollTop /> */}
     </div>
   );
 };

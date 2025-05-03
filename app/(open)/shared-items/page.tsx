@@ -7,16 +7,16 @@ import { useCloseBackdrop } from "@/hooks/backdrop";
 import { setOpenBackdrop } from "@/util/store/slice/backdropSlice";
 import { useAppDispatch } from "@/util/store/store";
 import {
-  Box,
+  // Box,
   Button,
   Dialog,
   DialogContent,
   DialogTitle,
-  Fab,
-  Fade,
+  // Fab,
+  // Fade,
   IconButton,
   Paper,
-  useScrollTrigger,
+  // useScrollTrigger,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSharedItems } from "@/hooks/items";
@@ -43,7 +43,7 @@ import {
 
 import { getAllISOCodes } from "iso-country-currency";
 import Link from "next/link";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+// import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 Amplify.configure(outputs);
 
@@ -75,39 +75,39 @@ const SharedListPage = () => {
   /********************************************
    * BACK TO TOP BUTTON
    ********************************************/
-  function ScrollTop() {
-    const trigger = useScrollTrigger({
-      target: window ? window : undefined,
-      disableHysteresis: true,
-      threshold: 100,
-    });
+  // function ScrollTop() {
+  //   const trigger = useScrollTrigger({
+  //     target: window ? window : undefined,
+  //     disableHysteresis: true,
+  //     threshold: 100,
+  //   });
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-      const anchor = (
-        (event.target as HTMLDivElement).ownerDocument || document
-      ).querySelector("#back-to-top-anchor");
+  //   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  //     const anchor = (
+  //       (event.target as HTMLDivElement).ownerDocument || document
+  //     ).querySelector("#back-to-top-anchor");
 
-      if (anchor) {
-        anchor.scrollIntoView({
-          block: "center",
-        });
-      }
-    };
+  //     if (anchor) {
+  //       anchor.scrollIntoView({
+  //         block: "center",
+  //       });
+  //     }
+  //   };
 
-    return (
-      <Fade in={trigger}>
-        <Box
-          onClick={handleClick}
-          role="presentation"
-          sx={{ position: "fixed", bottom: 16, right: 16 }}
-        >
-          <Fab size="small" aria-label="scroll back to top">
-            <KeyboardArrowUpIcon />
-          </Fab>
-        </Box>
-      </Fade>
-    );
-  }
+  //   return (
+  //     <Fade in={trigger}>
+  //       <Box
+  //         onClick={handleClick}
+  //         role="presentation"
+  //         sx={{ position: "fixed", bottom: 16, right: 16 }}
+  //       >
+  //         <Fab size="small" aria-label="scroll back to top">
+  //           <KeyboardArrowUpIcon />
+  //         </Fab>
+  //       </Box>
+  //     </Fade>
+  //   );
+  // }
 
   /*********************************************
    * SHARE DIALOG
@@ -354,7 +354,7 @@ const SharedListPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-      <ScrollTop />
+      {/* <ScrollTop /> */}
     </div>
   );
 };
