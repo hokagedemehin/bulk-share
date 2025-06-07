@@ -439,9 +439,29 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
   };
 
   /*********************************************************
-   * CLOSE ITEMS
+   * CLOSE ITEMS DIALOG
    **********************************************************/
+  /*********************************************
+   *  CLOSE ITEM DIALOG
+   * **********************************************/
+  const [closeItemDialog, setCloseItemDialog] = useState(false);
+  const [selectedCloseItem, setSelectedCloseItem] = useState(null as any);
+
+  const handleOpenCloseItemDialog = () => {
+    setSelectedCloseItem(itemDetails?.id);
+    setCloseItemDialog(true);
+  };
+  const handleCloseItemDialog = () => {
+    setSelectedCloseItem(null);
+    setCloseItemDialog(false);
+  };
   const handleCloseItem = async () => {
+    if (!selectedCloseItem) {
+      enqueueSnackbar("No item selected", {
+        variant: "error",
+      });
+      return;
+    }
     //change the visible to field of the item to owner
     app_dispatch(setOpenBackdrop());
     try {
@@ -471,7 +491,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
       }
     } catch (error) {
       app_dispatch(setCloseBackdrop());
-      console.error("Error closing item", error);
+      console.error("Something went wrong!", error);
       enqueueSnackbar("Error closing item. Please try again.", {
         variant: "error",
       });
@@ -830,7 +850,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
             variant="outlined"
             className="rounded-full normal-case"
             onClick={() => {
-              handleCloseItem();
+              handleOpenCloseItemDialog();
             }}
           >
             <span className="text-sm font-semibold">Close Item</span>
@@ -1113,6 +1133,16 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      {/* close item dialog */}
+      <CustomDialog
+        title="Close Item"
+        message="Are you sure you want to close this item. It will not be visible for others to join again?"
+        buttonText="Close Item"
+        openDialog={closeItemDialog}
+        handleCloseDialog={handleCloseItemDialog}
+        selectedItem={selectedCloseItem}
+        handleAction={handleCloseItem}
+      />
     </div>
   );
 };

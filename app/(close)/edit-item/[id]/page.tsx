@@ -35,6 +35,7 @@ import dayjs from "dayjs";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { v4 as uuidv4 } from "uuid";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import CustomDialog from "@/components/layout/CustomDialog";
 
 const client = generateClient<Schema>();
 
@@ -58,6 +59,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const backRouter = BackRouter();
 
   const { getSingleItem } = useSharedItems();
+  const [itemDetail, setItemDetail] = useState(null as any);
 
   /*********************************************
    * USER DETAILS
@@ -82,7 +84,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
    * **********************************************/
   const [countryList, setCountryList] = useState([] as any);
   const [selectedCountry, setSelectedCountry] = useState("");
-  const [countryCode, setCountryCode] = useState("" as any);
+  // const [countryCode, setCountryCode] = useState("" as any);
 
   useEffect(() => {
     const tempArr: any = [];
@@ -96,6 +98,8 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         value: item?.name,
         symbol: item?.currency_symbol,
         currency: item?.currency,
+        flag: item?.emoji,
+        phone_code: item?.phone_code.replace(/\D/g, ""),
       });
     });
     setCountryList(tempArr);
@@ -131,10 +135,10 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const handleSelectedCurrency = (event: SelectChangeEvent<string>) => {
     const country = event.target.value;
     setSelectedCountry(country);
-    const findCountry = countryList.find((item: any) => item.value === country);
-    if (findCountry) {
-      setCountryCode(findCountry.iso2);
-    }
+    // const findCountry = countryList.find((item: any) => item.value === country);
+    // if (findCountry) {
+    //   setCountryCode(findCountry.iso2);
+    // }
   };
 
   /*********************************************
@@ -331,7 +335,9 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
       emailSelected: false,
       phoneSelected: false,
       contactEmail: "",
-      contactPhone: "",
+      // contactPhone: "",
+      phone_code: "",
+      phone: "",
       contactName: "",
       peopleRequired: 0,
     },
@@ -346,26 +352,38 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
     //   setValue("contactEmail", userDetails?.email);
     //   // setValue("contactPhone", userDetails?.phone_number);
     // }
-    const localCountry = localStorage.getItem("bulk_share_country");
-    const localState = localStorage.getItem("bulk_share_state");
-    const localCurrency = localStorage.getItem("bulk_share_currency");
-    setSelectedCountry(localCountry || "");
+    // const localCountry = localStorage.getItem("bulk_share_country");
+    // const localState = localStorage.getItem("bulk_share_state");
+    // const localCurrency = localStorage.getItem("bulk_share_currency");
+    // const localPhoneCode = localStorage.getItem("bulk_share_phone_code");
+    // const localPhone = localStorage.getItem("bulk_share_phone");
+    // const localName = localStorage.getItem("bulk_share_name");
+    // setSelectedCountry(localCountry || "");
 
-    if (localCountry) {
-      setValue("country", localCountry);
-    }
+    //     if (localName) {
+    //   setValue("contactName", localName);
+    // } else {
+    //   setValue(
+    //     "contactName",
+    //     `${userDetails?.family_name} ${userDetails?.given_name}`,
+    //   );
+    // }
 
-    if (localState) {
-      setValue("state", localState);
-    }
+    // if (localCountry) {
+    //   setValue("country", localCountry);
+    // }
 
-    if (localCurrency) {
-      setValue("currency", localCurrency);
-    }
+    // if (localState) {
+    //   setValue("state", localState);
+    // }
+
+    // if (localCurrency) {
+    //   setValue("currency", localCurrency);
+    // }
 
     (async () => {
       const itemDetails = await getSingleItem(id);
-      // console.log("itemDetails :>> ", itemDetails);
+      console.log("itemDetails :>> ", itemDetails);
       if (itemDetails) {
         setValue("itemName", itemDetails?.name || "");
         setValue(
@@ -386,11 +404,13 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         setValue("isDigital", itemDetails.isDigital! || false);
         setValue("currency", itemDetails.currency! || "");
         setValue("country", itemDetails.country! || "");
+        setSelectedCountry(itemDetails.country! || "");
         setValue("state", itemDetails.state! || "");
         setValue("location", itemDetails.location! || "");
         setValue("contactMethod", itemDetails.contactMethod! || "");
         setValue("contactEmail", itemDetails.contactEmail! || "");
-        setValue("contactPhone", itemDetails.contactPhone! || "");
+        setValue("phone", itemDetails.phone! || "");
+        setValue("phone_code", itemDetails.phone_code! || "");
         setValue("contactName", itemDetails.contactName! || "");
         setValue("peopleRequired", itemDetails.peopleRequired! || 0);
         setItemImageUpload(itemDetails.coverImage);
@@ -451,6 +471,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         } else {
           setStateList([]);
         }
+        setItemDetail(itemDetails);
       }
     })();
 
@@ -474,21 +495,59 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
       return;
     }
 
-    const parsedPhonenumber = parsePhoneNumberFromString(
-      data.contactPhone,
-      countryCode,
-    );
-    console.log("parsedPhonenumber :>> ", parsedPhonenumber);
-    if (parsedPhonenumber?.isValid()) {
-      setValue("contactPhone", parsedPhonenumber?.number?.replace("+", ""));
-    } else {
-      setError("contactPhone", {
-        type: "manual",
-        message: "Invalid phone number",
+    if (!data?.phone_code) {
+      enqueueSnackbar("Please select your country code", {
+        variant: "error",
       });
-      app_dispatch(setCloseBackdrop());
       return;
     }
+
+    let constructNumber = "";
+
+    const findCountry = country_states.find(
+      (item: any) => item.phone_code === data.phone_code,
+    );
+
+    if (!findCountry) {
+      enqueueSnackbar("Please select a valid country code", {
+        variant: "error",
+      });
+      return;
+    } else {
+      const parsedPhonenumber = parsePhoneNumberFromString(
+        data.phone,
+        findCountry.iso2 as any,
+      );
+      // console.log("parsedPhonenumber :>> ", parsedPhonenumber);
+      if (parsedPhonenumber?.isValid()) {
+        constructNumber = parsedPhonenumber?.number?.replace("+", "");
+      } else {
+        setError("phone", {
+          type: "manual",
+          message: "Please enter a valid phone number",
+        });
+        enqueueSnackbar("Please enter a valid phone number", {
+          variant: "error",
+        });
+        return;
+      }
+    }
+
+    // const parsedPhonenumber = parsePhoneNumberFromString(
+    //   data.contactPhone,
+    //   countryCode,
+    // );
+    // console.log("parsedPhonenumber :>> ", parsedPhonenumber);
+    // if (parsedPhonenumber?.isValid()) {
+    //   setValue("contactPhone", parsedPhonenumber?.number?.replace("+", ""));
+    // } else {
+    //   setError("contactPhone", {
+    //     type: "manual",
+    //     message: "Invalid phone number",
+    //   });
+    //   app_dispatch(setCloseBackdrop());
+    //   return;
+    // }
 
     let coverURL = "";
     const isImageExist =
@@ -551,7 +610,9 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         otherImages: JSON.stringify([moreImage1URL, moreImage2URL]),
         contactMethod: selectedMethod || "",
         contactEmail: data.contactEmail,
-        contactPhone: data.contactPhone,
+        contactPhone: constructNumber || "",
+        phone_code: data.phone_code || "",
+        phone: data.phone || "",
         contactName: data.contactName,
         userSub: userDetails?.sub || "",
         peopleRequired: parseInt(data.peopleRequired),
@@ -561,7 +622,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
             userSub: userDetails?.sub,
             contactName: data.contactName,
             contactEmail: data.contactEmail,
-            contactPhone: data.contactPhone,
+            contactPhone: constructNumber || "",
             isOwner: true,
             status: "confirmed",
           },
@@ -573,6 +634,10 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         localStorage.setItem("bulk_share_country", data.country);
         localStorage.setItem("bulk_share_state", data.state);
         localStorage.setItem("bulk_share_currency", data.currency);
+        localStorage.setItem("bulk_share_phone_code", data.phone_code);
+        localStorage.setItem("bulk_share_phone", data.phone);
+        localStorage.setItem("bulk_share_name", data.contactName);
+
         enqueueSnackbar("Item updated successfully", {
           variant: "success",
         });
@@ -597,6 +662,64 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         variant: "error",
       });
       console.error("Error creating item", error);
+    }
+  };
+
+  /*********************************************
+   *  CLOSE ITEM DIALOG
+   * **********************************************/
+  const [closeItemDialog, setCloseItemDialog] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null as any);
+
+  const handleOpenCloseItemDialog = () => {
+    setSelectedItem(itemDetail);
+    setCloseItemDialog(true);
+  };
+  const handleCloseItemDialog = () => {
+    setSelectedItem(null);
+    setCloseItemDialog(false);
+  };
+  const handleCloseItem = async () => {
+    // update item properties visible, visibleTo, status
+    if (!selectedItem) {
+      enqueueSnackbar("No item selected", {
+        variant: "error",
+      });
+      return;
+    }
+    try {
+      app_dispatch(setOpenBackdrop());
+
+      const { data: closedItem, errors } = await client.models.ListItem.update({
+        id: selectedItem?.id,
+        visibleTo: "owner",
+        status: "closed",
+      });
+
+      if (errors) {
+        app_dispatch(setCloseBackdrop());
+        enqueueSnackbar("Error closing item", {
+          variant: "error",
+        });
+        console.error("Error closing item", errors);
+        return;
+      }
+
+      if (closedItem) {
+        app_dispatch(setCloseBackdrop());
+        enqueueSnackbar("Item closed successfully", {
+          variant: "success",
+        });
+        handleCloseItemDialog();
+        pushRouter("/my-list");
+      }
+    } catch (error) {
+      app_dispatch(setCloseBackdrop());
+      enqueueSnackbar("Something went wrong!", {
+        variant: "error",
+      });
+      console.error("Error closing item", error);
+      return;
     }
   };
 
@@ -1400,7 +1523,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                   {selectedOption.phoneSelected && (
                     <Controller
                       control={control}
-                      name="contactPhone"
+                      name="phone"
                       rules={{
                         validate: (value) => {
                           if (selectedOption.phoneSelected) {
@@ -1414,17 +1537,17 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                       render={({ field }) => (
                         <FormControl
                           fullWidth
-                          error={!!errors.contactPhone}
+                          error={!!errors.phone}
                           className="space-y-1"
                         >
                           <FormLabel
-                            error={!!errors.contactPhone}
+                            error={!!errors.phone}
                             className={`text-sm ${
-                              errors.contactPhone
+                              errors.phone
                                 ? "text-red-400"
                                 : "text-gray-900 dark:text-white"
                             }`}
-                            htmlFor="contactPhone"
+                            htmlFor="phone"
                           >
                             Phone Number
                           </FormLabel>
@@ -1433,12 +1556,50 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                             type="tel"
                             placeholder="Include country code"
                             fullWidth
-                            error={!!errors.contactPhone}
+                            error={!!errors.phone}
                             size="small"
                             helperText={
-                              errors.contactPhone?.message ||
+                              errors.phone?.message ||
                               "please include country code"
                             }
+                            slotProps={{
+                              input: {
+                                startAdornment: (
+                                  <Controller
+                                    name="phone_code"
+                                    control={control}
+                                    render={({ field }) => (
+                                      <FormControl
+                                        size="small"
+                                        sx={{
+                                          marginLeft: "-8px",
+                                        }}
+                                      >
+                                        <Select
+                                          {...field}
+                                          size="small"
+                                          variant="standard"
+                                          disableUnderline
+                                          displayEmpty
+                                          MenuProps={MenuProps}
+                                        >
+                                          {countryList.map((country: any) => (
+                                            <MenuItem
+                                              key={country.id}
+                                              value={country.phone_code}
+                                            >
+                                              {country.flag} +
+                                              {country.phone_code}{" "}
+                                              {country.iso3}
+                                            </MenuItem>
+                                          ))}
+                                        </Select>
+                                      </FormControl>
+                                    )}
+                                  />
+                                ),
+                              },
+                            }}
                           />
                         </FormControl>
                       )}
@@ -1624,6 +1785,16 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
             {/* submit button */}
             <div className="mt-5 flex items-center justify-end">
               <Button
+                variant="outlined"
+                color="error"
+                className="font-poppins mr-2 w-[40%] rounded-xl normal-case md:w-[30%] lg:w-[20%]"
+                onClick={() => {
+                  handleOpenCloseItemDialog();
+                }}
+              >
+                Close Item
+              </Button>
+              <Button
                 variant="contained"
                 color="primary"
                 className="font-poppins w-[40%] rounded-xl normal-case md:w-[30%] lg:w-[20%]"
@@ -1635,6 +1806,16 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
           </form>
         </div>
       </section>
+      {/* close item dialog */}
+      <CustomDialog
+        title="Close Item"
+        message="Are you sure you want to close this item. It will not be visible for others to join again?"
+        buttonText="Close Item"
+        openDialog={closeItemDialog}
+        handleCloseDialog={handleCloseItemDialog}
+        selectedItem={selectedItem}
+        handleAction={handleCloseItem}
+      />
     </div>
   );
 };

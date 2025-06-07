@@ -135,7 +135,7 @@ export default function MainLayout({
                               ? "bg-gray-200 font-medium dark:bg-gray-800"
                               : ""
                           }`}
-                          onClick={() => handleOpenBackdrop("/my-list")}
+                          // onClick={() => handleOpenBackdrop("/my-list")}
                         >
                           My List
                         </Link>

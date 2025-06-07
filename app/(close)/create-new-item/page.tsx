@@ -78,7 +78,7 @@ const CreateNewItem = () => {
    * **********************************************/
   const [countryList, setCountryList] = useState([] as any);
   const [selectedCountry, setSelectedCountry] = useState("");
-  const [countryCode, setCountryCode] = useState("" as any);
+  // const [countryCode, setCountryCode] = useState("" as any);
   useEffect(() => {
     const tempArr: any = [];
 
@@ -91,6 +91,8 @@ const CreateNewItem = () => {
         value: item?.name,
         symbol: item?.currency_symbol,
         currency: item?.currency,
+        flag: item?.emoji,
+        phone_code: item?.phone_code.replace(/\D/g, ""),
       });
     });
     setCountryList(tempArr);
@@ -126,10 +128,10 @@ const CreateNewItem = () => {
   const handleSelectedCurrency = (event: SelectChangeEvent<string>) => {
     const country = event.target.value;
     setSelectedCountry(country);
-    const findCountry = countryList.find((item: any) => item.value === country);
-    if (findCountry) {
-      setCountryCode(findCountry.iso2);
-    }
+    // const findCountry = countryList.find((item: any) => item.value === country);
+    // if (findCountry) {
+    //   setCountryCode(findCountry.iso2);
+    // }
   };
 
   /*********************************************
@@ -325,7 +327,9 @@ const CreateNewItem = () => {
       emailSelected: false,
       phoneSelected: false,
       contactEmail: "",
-      contactPhone: "",
+      // contactPhone: "",
+      phone_code: "",
+      phone: "",
       contactName: "",
       peopleRequired: 0,
     },
@@ -333,17 +337,26 @@ const CreateNewItem = () => {
 
   useEffect(() => {
     if (userDetails) {
-      setValue(
-        "contactName",
-        `${userDetails?.family_name} ${userDetails?.given_name}`,
-      );
       setValue("contactEmail", userDetails?.email);
       // setValue("contactPhone", userDetails?.phone_number);
     }
     const localCountry = localStorage.getItem("bulk_share_country");
     const localState = localStorage.getItem("bulk_share_state");
     const localCurrency = localStorage.getItem("bulk_share_currency");
+    const localPhoneCode = localStorage.getItem("bulk_share_phone_code");
+    const localPhone = localStorage.getItem("bulk_share_phone");
+    const localName = localStorage.getItem("bulk_share_name");
+
     setSelectedCountry(localCountry || "");
+
+    if (localName) {
+      setValue("contactName", localName);
+    } else {
+      setValue(
+        "contactName",
+        `${userDetails?.family_name} ${userDetails?.given_name}`,
+      );
+    }
 
     if (localCountry) {
       setValue("country", localCountry);
@@ -357,11 +370,24 @@ const CreateNewItem = () => {
       setValue("currency", localCurrency);
     }
 
+    if (localPhoneCode) {
+      setValue("phone_code", localPhoneCode);
+    }
+
+    if (localPhone) {
+      setValue("phone", localPhone);
+    }
+
+    // if (localPhone && localPhoneCode) {
+    //   const constructNumber = `${localPhoneCode}${localPhone}`;
+    //   setValue("contactPhone", constructNumber);
+    // }
+
     return () => {};
   }, [userDetails, setValue]);
 
   const onSubmit = async (data: any) => {
-    // console.log(data);
+    console.log(data);
     if (!data.emailSelected && !data.phoneSelected) {
       setError("contactMethod", {
         type: "manual",
@@ -370,21 +396,54 @@ const CreateNewItem = () => {
       return;
     }
 
-    const parsedPhonenumber = parsePhoneNumberFromString(
-      data.contactPhone,
-      countryCode,
-    );
-    console.log("parsedPhonenumber :>> ", parsedPhonenumber);
-    if (parsedPhonenumber?.isValid()) {
-      setValue("contactPhone", parsedPhonenumber?.number?.replace("+", ""));
-    } else {
-      setError("contactPhone", {
-        type: "manual",
-        message: "Invalid phone number format.",
+    if (!data?.phone_code) {
+      enqueueSnackbar("Please select your country code", {
+        variant: "error",
       });
-      app_dispatch(setCloseBackdrop());
       return;
     }
+
+    let constructNumber = "";
+
+    const findCountry = country_states.find(
+      (item: any) => item.phone_code === data.phone_code,
+    );
+
+    if (!findCountry) {
+      enqueueSnackbar("Please select a valid country code", {
+        variant: "error",
+      });
+      return;
+    } else {
+      const parsedPhonenumber = parsePhoneNumberFromString(
+        data.phone,
+        findCountry.iso2 as any,
+      );
+      // console.log("parsedPhonenumber :>> ", parsedPhonenumber);
+      if (parsedPhonenumber?.isValid()) {
+        constructNumber = parsedPhonenumber?.number?.replace("+", "");
+      } else {
+        setError("phone", {
+          type: "manual",
+          message: "Please enter a valid phone number",
+        });
+        enqueueSnackbar("Please enter a valid phone number", {
+          variant: "error",
+        });
+        return;
+      }
+    }
+
+    // if (parsedPhonenumber?.isValid()) {
+    //   setValue("contactPhone", parsedPhonenumber?.number?.replace("+", ""));
+    // } else {
+    //   setError("contactPhone", {
+    //     type: "manual",
+    //     message: "Invalid phone number format.",
+    //   });
+    //   app_dispatch(setCloseBackdrop());
+    //   return;
+    // }
 
     if (!itemImageUpload) {
       enqueueSnackbar("Please provide an item image", {
@@ -442,7 +501,9 @@ const CreateNewItem = () => {
         otherImages: JSON.stringify([moreImage1URL, moreImage2URL]),
         contactMethod: selectedMethod || "",
         contactEmail: data.contactEmail,
-        contactPhone: data.contactPhone,
+        contactPhone: constructNumber || "",
+        phone_code: data.phone_code || "",
+        phone: data.phone || "",
         contactName: data.contactName,
         userSub: userDetails?.sub || "",
         peopleRequired: parseInt(data.peopleRequired),
@@ -452,7 +513,7 @@ const CreateNewItem = () => {
             userSub: userDetails?.sub,
             contactName: data.contactName,
             contactEmail: data.contactEmail,
-            contactPhone: data.contactPhone,
+            contactPhone: constructNumber || "",
             isOwner: true,
             status: "confirmed",
           },
@@ -468,6 +529,10 @@ const CreateNewItem = () => {
         localStorage.setItem("bulk_share_country", data.country);
         localStorage.setItem("bulk_share_state", data.state);
         localStorage.setItem("bulk_share_currency", data.currency);
+        localStorage.setItem("bulk_share_phone_code", data.phone_code);
+        localStorage.setItem("bulk_share_phone", data.phone);
+        localStorage.setItem("bulk_share_name", data.contactName);
+
         enqueueSnackbar("Item created successfully", {
           variant: "success",
         });
@@ -1296,7 +1361,7 @@ const CreateNewItem = () => {
                   {selectedOption.phoneSelected && (
                     <Controller
                       control={control}
-                      name="contactPhone"
+                      name="phone"
                       rules={{
                         validate: (value) => {
                           if (selectedOption.phoneSelected) {
@@ -1310,17 +1375,17 @@ const CreateNewItem = () => {
                       render={({ field }) => (
                         <FormControl
                           fullWidth
-                          error={!!errors.contactPhone}
+                          error={!!errors.phone}
                           className="space-y-1"
                         >
                           <FormLabel
-                            error={!!errors.contactPhone}
+                            error={!!errors.phone}
                             className={`text-sm ${
-                              errors.contactPhone
+                              errors.phone
                                 ? "text-red-400"
                                 : "text-gray-900 dark:text-white"
                             }`}
-                            htmlFor="contactPhone"
+                            htmlFor="phone"
                           >
                             Phone Number
                           </FormLabel>
@@ -1329,12 +1394,50 @@ const CreateNewItem = () => {
                             type="tel"
                             placeholder="Include country code"
                             fullWidth
-                            error={!!errors.contactPhone}
+                            error={!!errors.phone}
                             size="small"
                             helperText={
-                              errors.contactPhone?.message ||
+                              errors.phone?.message ||
                               "please include country code"
                             }
+                            slotProps={{
+                              input: {
+                                startAdornment: (
+                                  <Controller
+                                    name="phone_code"
+                                    control={control}
+                                    render={({ field }) => (
+                                      <FormControl
+                                        size="small"
+                                        sx={{
+                                          marginLeft: "-8px",
+                                        }}
+                                      >
+                                        <Select
+                                          {...field}
+                                          size="small"
+                                          variant="standard"
+                                          disableUnderline
+                                          displayEmpty
+                                          MenuProps={MenuProps}
+                                        >
+                                          {countryList.map((country: any) => (
+                                            <MenuItem
+                                              key={country.id}
+                                              value={country.phone_code}
+                                            >
+                                              {country.flag} +
+                                              {country.phone_code}{" "}
+                                              {country.iso3}
+                                            </MenuItem>
+                                          ))}
+                                        </Select>
+                                      </FormControl>
+                                    )}
+                                  />
+                                ),
+                              },
+                            }}
                           />
                         </FormControl>
                       )}

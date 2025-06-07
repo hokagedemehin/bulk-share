@@ -15,7 +15,9 @@ import {
   // Fab,
   // Fade,
   IconButton,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   // useScrollTrigger,
 } from "@mui/material";
@@ -44,9 +46,22 @@ import {
 
 import { getAllISOCodes } from "iso-country-currency";
 import Link from "next/link";
+import { country_states } from "@/util/helpers/country_state";
 // import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 Amplify.configure(outputs);
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      // border: "1px solid",
+      // width: 250,
+    },
+  },
+};
 
 const SharedListPage = () => {
   useCloseBackdrop();
@@ -54,24 +69,58 @@ const SharedListPage = () => {
   const currencyList = useMemo(() => getAllISOCodes(), []);
   const app_dispatch = useAppDispatch();
 
+  /*********************************************
+   *  COUNTRY LIST
+   * **********************************************/
+  const [selectedCountry, setSelectedCountry] = useState("world" as string);
+  const [countryList, setCountryList] = useState([] as any);
+
+  useEffect(() => {
+    const tempArr: any = [];
+
+    country_states.map((item: any) => {
+      tempArr.push({
+        id: item?.iso2,
+        iso3: item?.iso3,
+        iso2: item?.iso2,
+        label: item?.name,
+        value: item?.name,
+        symbol: item?.currency_symbol,
+        currency: item?.currency,
+        flag: item?.emoji,
+        phone_code: item?.phone_code.replace(/\D/g, ""),
+      });
+    });
+    setCountryList(tempArr);
+
+    return () => {};
+  }, []);
+
   /********************************************
    * LIST ITMES
    ********************************************/
   const [listItems, setListItems] = useState([] as any);
   const [defaultListItems, setDefaultListItems] = useState([] as any);
-  console.log("defaultListItems", defaultListItems);
 
   useEffect(() => {
     if (allListItems) {
       const filterItems = allListItems.filter(
         (item: any) => item.visibleTo === "everyone",
       );
-      setListItems(filterItems);
-      setDefaultListItems(filterItems);
+      if (selectedCountry === "world") {
+        setListItems(filterItems);
+        setDefaultListItems(filterItems);
+      } else {
+        const countryFilteredItems = filterItems.filter(
+          (item: any) => item.country === selectedCountry,
+        );
+        setListItems(countryFilteredItems);
+        setDefaultListItems(countryFilteredItems);
+      }
     }
 
     return () => {};
-  }, [allListItems]);
+  }, [allListItems, selectedCountry]);
 
   /********************************************
    * BACK TO TOP BUTTON
@@ -133,33 +182,51 @@ const SharedListPage = () => {
   return (
     <div className="mt-4 px-2">
       <section className="container mx-auto">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <h1 className="text-2xl font-bold">Shared Items</h1>
-          <TextField
-            placeholder="Search"
-            variant="outlined"
-            size="small"
-            className="w-full max-w-[300px]"
-            // onChange={(e) => {
-            //   const value = e.target.value.toLowerCase();
-            //   const filteredItems = defaultListItems.filter((item: any) =>
-            //     item?.name?.toLowerCase().includes(value) ||
-            //     item?.description?.short?.toLowerCase().includes(value),
-            //   );
-            //   setListItems(filteredItems);
-            // }}
-            // InputProps={{
-            //   endAdornment: (
-            //     <IconButton>
-            //       <Icon
-            //         icon="material-symbols:search-rounded"
-            //         width={20}
-            //         height={20}
-            //       />
-            //     </IconButton>
-            //   ),
-            // }}
-          />
+          <div className="flex space-x-2">
+            <Select
+              value={selectedCountry}
+              onChange={(event) => {
+                setSelectedCountry(event.target.value as string);
+                if (event.target.value === "world") {
+                  setListItems(defaultListItems);
+                } else {
+                  const countryFilteredItems = defaultListItems.filter(
+                    (item: any) => item.country === event.target.value,
+                  );
+                  setListItems(countryFilteredItems);
+                }
+              }}
+              fullWidth
+              size="small"
+              MenuProps={MenuProps}
+              className="text-black dark:text-white"
+            >
+              <MenuItem
+                value="world"
+                onClick={() => {
+                  setSelectedCountry("world");
+                  setListItems(defaultListItems);
+                }}
+              >
+                <span className="text-gray-600 dark:text-gray-400">
+                  Worldwide
+                </span>
+              </MenuItem>
+              {countryList.map((item: any) => (
+                <MenuItem key={item.id} value={item.value}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Select>
+            <TextField
+              placeholder="Search"
+              variant="outlined"
+              size="small"
+              className="w-full max-w-[300px]"
+            />
+          </div>
         </div>
         <p className="mt-2 text-gray-600">
           This is the shared items page. Find all the items you can share with

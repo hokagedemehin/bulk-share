@@ -610,7 +610,7 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
           {itemDetails?.otherImages?.length > 0 &&
             itemDetails?.otherImages?.some((image: any) => image === "") && (
               <p className="mt-10 mb-8 text-center text-sm text-gray-500">
-                You don&apos;t have any other images for this item yet.
+                They are no other images for this item yet.
               </p>
             )}
           <div className="flex space-x-3 overflow-x-auto">
