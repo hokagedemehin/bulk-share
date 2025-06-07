@@ -36,6 +36,8 @@ const schema = a.schema({
       contactMethod: a.string(),
       contactEmail: a.string(),
       contactPhone: a.string(),
+      phone_code: a.string(),
+      phone: a.string(),
       contactName: a.string(),
       userSub: a.string(),
       peopleRequired: a.integer(),

@@ -156,7 +156,7 @@ const MyListPage = () => {
     setSelectedShareItem(null);
   };
 
-  const shareUrl = `https://bulk-share.vercel.app/item/${selectedShareItem}`;
+  const shareUrl = `https://bulk-share.com/item/${selectedShareItem}`;
   const shareTitle = `Join this item group on Bulk Share and save money by buying in bulk!`;
   const description = `Join this item group on Bulk Share and save money by buying in bulk!`;
 
@@ -206,6 +206,64 @@ const MyListPage = () => {
         variant: "error",
       });
       console.error("Error deleting item", error);
+    }
+  };
+
+  /*********************************************
+   *  CLOSE ITEM DIALOG
+   * **********************************************/
+  const [closeItemDialog, setCloseItemDialog] = useState(false);
+  const [selectedCloseItem, setSelectedCloseItem] = useState(null as any);
+
+  const handleOpenCloseItemDialog = (item: any) => {
+    setSelectedCloseItem(item);
+    setCloseItemDialog(true);
+  };
+  const handleCloseItemDialog = () => {
+    setSelectedCloseItem(null);
+    setCloseItemDialog(false);
+  };
+  const handleCloseItem = async () => {
+    // update item properties visible, visibleTo, status
+    if (!selectedCloseItem) {
+      enqueueSnackbar("No item selected", {
+        variant: "error",
+      });
+      return;
+    }
+    try {
+      app_dispatch(setOpenBackdrop());
+
+      const { data: closedItem, errors } = await client.models.ListItem.update({
+        id: selectedCloseItem,
+        visibleTo: "owner",
+        status: "closed",
+      });
+
+      if (errors) {
+        app_dispatch(setCloseBackdrop());
+        enqueueSnackbar("Error closing item", {
+          variant: "error",
+        });
+        console.error("Error closing item", errors);
+        return;
+      }
+
+      if (closedItem) {
+        app_dispatch(setCloseBackdrop());
+        enqueueSnackbar("Item closed successfully", {
+          variant: "success",
+        });
+        handleCloseItemDialog();
+        // router("/my-list");
+      }
+    } catch (error) {
+      app_dispatch(setCloseBackdrop());
+      enqueueSnackbar("Something went wrong!", {
+        variant: "error",
+      });
+      console.error("Error closing item", error);
+      return;
     }
   };
 
@@ -327,6 +385,19 @@ const MyListPage = () => {
                         <Icon
                           className="text-blue-600"
                           icon="mage:share"
+                          width={20}
+                          height={20}
+                        />
+                      </IconButton>
+                      <IconButton
+                        className="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
+                        onClick={() => {
+                          handleOpenCloseItemDialog(item?.id);
+                        }}
+                      >
+                        <Icon
+                          className="text-gray-800"
+                          icon="mdi:eye-lock-outline"
                           width={20}
                           height={20}
                         />
@@ -475,6 +546,16 @@ const MyListPage = () => {
         handleCloseDialog={handleCloseDeleteDialog}
         selectedItem={selectedDeleteItem}
         handleAction={handleDeleteItem}
+      />
+      {/* close item dialog */}
+      <CustomDialog
+        title="Close Item"
+        message="Are you sure you want to close this item. It will not be visible for others to join again?"
+        buttonText="Close Item"
+        openDialog={closeItemDialog}
+        handleCloseDialog={handleCloseItemDialog}
+        selectedItem={selectedCloseItem}
+        handleAction={handleCloseItem}
       />
       {/* <ScrollTop /> */}
     </div>

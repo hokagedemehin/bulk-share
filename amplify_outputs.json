@@ -235,6 +235,20 @@
               "isRequired": false,
               "attributes": []
             },
+            "phone_code": {
+              "name": "phone_code",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "phone": {
+              "name": "phone",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "contactName": {
               "name": "contactName",
               "isArray": false,
