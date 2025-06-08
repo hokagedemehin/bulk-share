@@ -44,7 +44,7 @@ export async function generateMetadata(
         description: data?.description?.short
           ? data.description.short
           : prevData.description!,
-        url: `https://bulk-share.vercel.app/item/${data?.id}`,
+        url: `https://bulk-share.com/item/${data?.id}`,
         siteName: "Bulk Share",
         images: [
           {

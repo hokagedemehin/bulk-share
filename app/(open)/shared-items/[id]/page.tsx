@@ -134,10 +134,10 @@ const ItemDetailsPage = () => {
   const [openRemoveSelfDialog, setOpenRemoveSelfDialog] = useState(false);
   const [selectedSelf, setSelectedSelf] = useState(null as any);
 
-  const handleOpenRemoveSelfDialog = (item: any) => {
-    setSelectedSelf(item);
-    setOpenRemoveSelfDialog(true);
-  };
+  // const handleOpenRemoveSelfDialog = (item: any) => {
+  //   setSelectedSelf(item);
+  //   setOpenRemoveSelfDialog(true);
+  // };
 
   const handleCloseRemoveDialog = () => {
     setOpenRemoveSelfDialog(false);
@@ -548,7 +548,7 @@ const ItemDetailsPage = () => {
                             )}
                           </div>
                         )}
-                        {!member?.isOwner && (
+                        {/* {!member?.isOwner && (
                           <div className="flex items-center space-x-3">
                             <IconButton
                               aria-label="delete"
@@ -565,7 +565,7 @@ const ItemDetailsPage = () => {
                               />
                             </IconButton>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   ))}

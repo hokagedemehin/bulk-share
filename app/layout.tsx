@@ -52,7 +52,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  metadataBase: new URL("https://bulk-share.vercel.app"),
+  metadataBase: new URL("https://bulk-share.com"),
   alternates: {
     canonical: "/",
     languages: {
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Bulk Share",
     description: "Team up with people to buy in bulk and save money",
-    url: "https://bulk-share.vercel.app",
+    url: "https://bulk-share.com",
     siteName: "Bulk Share",
     images: [
       {
