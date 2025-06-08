@@ -185,7 +185,7 @@ const SharedListPage = () => {
     setSelectedShareItem(null);
   };
 
-  const shareUrl = `https://bulk-share.vercel.app/item/${selectedShareItem}`;
+  const shareUrl = `https://bulk-share.com/item/${selectedShareItem}`;
   const shareTitle = `Join this item group on Bulk Share and save money by buying in bulk!`;
   const description = `Join this item group on Bulk Share and save money by buying in bulk!`;
 
