@@ -293,7 +293,7 @@ const AuthHeaderComp = () => {
                   />
                 </ListItemButton>
               </ListItem>
-              {userDetails && (
+              {userDetails ? (
                 <>
                   {/* my list */}
                   <ListItem disablePadding>
@@ -357,6 +357,23 @@ const AuthHeaderComp = () => {
                     </ListItemButton>
                   </ListItem>
                 </>
+              ) : (
+                <ListItem disablePadding>
+                  <ListItemButton
+                    href="/my-list"
+                    className="hover:bg-gray-200 hover:dark:bg-gray-800"
+                  >
+                    <ListItemText
+                      primary={
+                        <Typography
+                          className={`font-poppins w-full text-gray-900 dark:text-white`}
+                        >
+                          Get started
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
               )}
             </List>
           </nav>

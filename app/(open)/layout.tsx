@@ -148,7 +148,7 @@ export default function MainLayout({
                               ? "bg-gray-200 font-medium dark:bg-gray-800"
                               : ""
                           }`}
-                          onClick={() => handleOpenBackdrop("/profile")}
+                          // onClick={() => handleOpenBackdrop("/profile")}
                         >
                           Profile
                         </Link>
@@ -287,6 +287,92 @@ export default function MainLayout({
                         />
                       </ListItemButton>
                     </ListItem>
+                    {/* my list */}
+                    {authenticated && authenticated && (
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          href="/my-list"
+                          className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                            pathname === "/my-list"
+                              ? "bg-gray-200 font-medium dark:bg-gray-800"
+                              : ""
+                          }`}
+                          // onClick={() => handleOpenBackdrop("/my-list")}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography
+                                className={`font-poppins w-full text-gray-900 dark:text-white`}
+                              >
+                                My List
+                              </Typography>
+                            }
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    )}
+                    {/* profile */}
+                    {authenticated && (
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          href="/profile"
+                          className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                            pathname === "/profile"
+                              ? "bg-gray-200 font-medium dark:bg-gray-800"
+                              : ""
+                          }`}
+                          // onClick={() => handleOpenBackdrop("/profile")}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography
+                                className={`font-poppins w-full text-gray-900 dark:text-white`}
+                              >
+                                Profile
+                              </Typography>
+                            }
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    )}
+                    {/* sign out */}
+                    {authenticated && (
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          className="hover:bg-gray-200 hover:dark:bg-gray-800"
+                          onClick={handleSignOut}
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography
+                                className={`font-poppins w-full text-gray-900 dark:text-white`}
+                              >
+                                Log out
+                              </Typography>
+                            }
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    )}
+                    {/* get started */}
+                    {!authenticated && (
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          href="/my-list"
+                          className="hover:bg-blue-700 hover:dark:bg-blue-800"
+                        >
+                          <ListItemText
+                            primary={
+                              <Typography
+                                className={`font-poppins w-full text-white`}
+                              >
+                                Get started
+                              </Typography>
+                            }
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    )}
                   </List>
                 </nav>
               </div>
