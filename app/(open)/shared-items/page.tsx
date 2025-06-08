@@ -43,7 +43,7 @@ import {
   WhatsappIcon,
   XIcon,
 } from "react-share";
-
+import { useDebounce } from "use-debounce";
 import { getAllISOCodes } from "iso-country-currency";
 import Link from "next/link";
 import { country_states } from "@/util/helpers/country_state";
@@ -102,19 +102,29 @@ const SharedListPage = () => {
   const [listItems, setListItems] = useState([] as any);
   const [defaultListItems, setDefaultListItems] = useState([] as any);
 
+  console.log("listItems", listItems);
+  console.log("defaultListItems", defaultListItems);
+
   useEffect(() => {
     if (allListItems) {
       const filterItems = allListItems.filter(
         (item: any) => item.visibleTo === "everyone",
       );
       if (selectedCountry === "world") {
-        setListItems(filterItems);
+        const firstFewItems = filterItems.slice(0, 6);
+        setListItems(firstFewItems);
         setDefaultListItems(filterItems);
       } else {
         const countryFilteredItems = filterItems.filter(
           (item: any) => item.country === selectedCountry,
         );
-        setListItems(countryFilteredItems);
+        if (countryFilteredItems.length === 0) {
+          setListItems([]);
+          setDefaultListItems([]);
+          return;
+        }
+        const firstFewItems = countryFilteredItems.slice(0, 3);
+        setListItems(firstFewItems);
         setDefaultListItems(countryFilteredItems);
       }
     }
@@ -179,6 +189,60 @@ const SharedListPage = () => {
   const shareTitle = `Join this item group on Bulk Share and save money by buying in bulk!`;
   const description = `Join this item group on Bulk Share and save money by buying in bulk!`;
 
+  /********************************************
+   * LOAD MORE BUTTON
+   ********************************************/
+  const [endIndex, setEndIndex] = useState(6);
+  const handleLoadMore = () => {
+    setEndIndex((prev) => prev + 6);
+    if (defaultListItems.length > endIndex) {
+      const nextItems = defaultListItems.slice(0, endIndex + 3);
+      setListItems(nextItems);
+    } else {
+      setListItems(defaultListItems);
+    }
+  };
+
+  /********************************************
+   * SEARCH FUNCTIONALITY
+   ********************************************/
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+
+  // const handleSearchChange = useCallback(
+  //   () => {
+  //         if (debouncedSearchTerm) {
+  //     const filteredItems = defaultListItems.filter(
+  //       (item: any) =>
+  //         item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+  //         item.description?.short
+  //           .toLowerCase()
+  //           .includes(debouncedSearchTerm.toLowerCase()),
+  //     );
+  //     const firstFewItems = filteredItems.slice(0, endIndex);
+  //     setListItems(firstFewItems);
+  //   } else {
+  //     setListItems(defaultListItems.slice(0, endIndex));
+  //   }
+  //   },
+  //   [debouncedSearchTerm, defaultListItems, endIndex],
+  // )
+
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      const filteredItems = defaultListItems.filter(
+        (item: any) =>
+          item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+          item.description?.short
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase()),
+      );
+      setListItems(filteredItems);
+    } else {
+      setListItems(defaultListItems.slice(0, endIndex));
+    }
+  }, [debouncedSearchTerm, defaultListItems, endIndex]);
+
   return (
     <div className="mt-4 px-2">
       <section className="container mx-auto">
@@ -221,10 +285,12 @@ const SharedListPage = () => {
               ))}
             </Select>
             <TextField
-              placeholder="Search"
+              placeholder="Search items..."
               variant="outlined"
               size="small"
               className="w-full max-w-[300px]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
@@ -318,7 +384,7 @@ const SharedListPage = () => {
 
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/item/${item?.id}`}
+                        href={`/shared-items/${item?.id}`}
                         className="rounded-xl border border-green-700 px-5 py-2 text-sm text-green-700 transition duration-300 ease-in-out hover:bg-green-50 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-50/10"
                         onClick={() => {
                           app_dispatch(setOpenBackdrop());
@@ -332,6 +398,28 @@ const SharedListPage = () => {
               </Paper>
             ))}
           </section>
+        )}
+        {listItems.length > 0 && searchTerm === "" && (
+          <div className="mb-4 flex justify-center">
+            <Button
+              variant="outlined"
+              color="primary"
+              className="font-poppins rounded-xl normal-case"
+              onClick={() => {
+                handleLoadMore();
+              }}
+              disabled={
+                listItems.length >= defaultListItems.length ||
+                defaultListItems.length === 0 ||
+                (searchTerm !== "" && listItems.length <= 6)
+              }
+            >
+              {listItems.length >= defaultListItems.length ||
+              (searchTerm !== "" && listItems.length <= 6)
+                ? "No more items"
+                : "Load More"}
+            </Button>
+          </div>
         )}
       </section>
       {/* share dialog */}

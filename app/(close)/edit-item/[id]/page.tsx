@@ -1630,8 +1630,8 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           className="font-poppins text-xs text-red-600"
                           text-center
                         >
-                          File type not accepted & only one image is allowed,
-                          sorry!
+                          Either file type is not accepted or file size is more
+                          than 9mb, sorry!
                         </p>
                       )}
                       {!isDragActive && (
@@ -1688,8 +1688,8 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                             className="font-poppins text-xs text-red-600"
                             text-center
                           >
-                            File type not accepted & only one image is allowed,
-                            sorry!
+                            Either file type is not accepted or file size is
+                            more than 9mb, sorry!
                           </p>
                         )}
                         {!isDragActive1 && (
@@ -1744,8 +1744,8 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                             className="font-poppins text-xs text-red-600"
                             text-center
                           >
-                            File type not accepted & only one image is allowed,
-                            sorry!
+                            Either file type is not accepted or file size is
+                            more than 9mb, sorry!
                           </p>
                         )}
                         {!isDragActive2 && (

@@ -3,6 +3,10 @@ import { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import { fetchUserAttributes } from "aws-amplify/auth";
 import { redirect } from "next/navigation";
+import { Amplify } from "aws-amplify";
+import outputs from "@/amplify_outputs.json";
+
+Amplify.configure(outputs);
 
 const client = generateClient<Schema>();
 
@@ -85,6 +89,29 @@ export const useSharedItems = () => {
     });
     return listSub;
   }
+
+  const getSharedItemDetails = async (id: string) => {
+    try {
+      const getItem = await client.models.ListItem.get({
+        id: id,
+      });
+      if (!getItem) {
+        throw new Error("Item not found");
+      }
+      if (getItem && getItem.data) {
+        const parsedItem = {
+          ...getItem.data,
+          members: JSON.parse(getItem.data.members as string),
+          otherImages: JSON.parse(getItem.data.otherImages as string),
+          removedMembers: JSON.parse(getItem.data.removedMembers as string),
+        };
+
+        return parsedItem;
+      }
+    } catch (error) {
+      console.error("Error fetching item details", error);
+    }
+  };
 
   const getSingleItem = async (id: string) => {
     try {
@@ -190,5 +217,6 @@ export const useSharedItems = () => {
     getListItems,
     getMyItems,
     getSingleItem,
+    getSharedItemDetails,
   };
 };
