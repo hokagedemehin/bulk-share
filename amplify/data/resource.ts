@@ -22,6 +22,7 @@ const schema = a.schema({
         long: a.string(),
       }),
       instruction: a.string(),
+      specialInformation: a.string(),
       price: a.float().required(),
       visible: a.boolean().default(true),
       visibleTo: a.string().default("everyone"), // everyone, members, owner, none

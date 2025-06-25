@@ -720,13 +720,26 @@ const MyItemDetailsPage = ({ params }: { params: Promise<{ id: string }> }) => {
       {/* item details */}
       <section className="container mx-auto mt-5">
         {/* instructions */}
-        <div className="my-4">
-          <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
-            Instructions for this item
-          </p>
-          <p className="font-poppins text-sm text-gray-500 md:text-base">
-            {itemDetails?.instruction ? itemDetails?.instruction : "-"}
-          </p>
+        <div className="grid grid-cols-1 gap-4 pt-4 pb-5 md:grid-cols-2">
+          <div className="">
+            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+              Instructions for this item
+            </p>
+            <p className="font-poppins text-sm text-gray-500 md:text-base">
+              {itemDetails?.instruction ? itemDetails?.instruction : "-"}
+            </p>
+          </div>
+
+          <div className="">
+            <p className="font-poppins text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+              Special Information on this item
+            </p>
+            <p className="font-poppins text-sm text-gray-500 md:text-base">
+              {itemDetails?.specialInformation
+                ? itemDetails?.specialInformation
+                : "-"}
+            </p>
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <div className="flex flex-col space-y-5">
