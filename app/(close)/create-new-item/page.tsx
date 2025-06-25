@@ -315,6 +315,7 @@ const CreateNewItem = () => {
       itemName: "",
       shortDescription: "",
       longDescription: "",
+      specialInformation: "",
       instruction: "",
       isDigital: false,
       price: "",
@@ -490,6 +491,7 @@ const CreateNewItem = () => {
           long: data.longDescription,
         },
         instruction: data.instruction,
+        specialInformation: data.specialInformation,
         price: parseFloat(data.price),
         isDigital: data.isDigital,
         expiresAt: dayjs(data.expiresAt).toISOString(),
@@ -1201,6 +1203,45 @@ const CreateNewItem = () => {
                           helperText={errors.longDescription?.message || " "}
                           multiline
                           rows={2}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* special information */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="specialInformation"
+                    // rules={{
+                    //   required: "Special information is required",
+                    // }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.specialInformation}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.specialInformation}
+                          className={`text-sm ${
+                            errors.specialInformation
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="specialInformation"
+                        >
+                          Special Information (If applicable)
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          placeholder="Any special information about the item."
+                          multiline
+                          rows={2}
+                          fullWidth
+                          error={!!errors.specialInformation}
+                          size="small"
+                          helperText={errors.specialInformation?.message || " "}
                         />
                       </FormControl>
                     )}

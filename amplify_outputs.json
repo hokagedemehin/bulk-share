@@ -137,6 +137,13 @@
               "isRequired": false,
               "attributes": []
             },
+            "specialInformation": {
+              "name": "specialInformation",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "price": {
               "name": "price",
               "isArray": false,

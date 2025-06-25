@@ -326,7 +326,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
       price: "",
       expiresAt: dayjs(dayjs().add(2, "day").toDate()),
       instruction: "",
-
+      specialInformation: "",
       currency: "",
       country: "",
       state: "",
@@ -400,7 +400,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
           itemDetails.expiresAt ? dayjs(itemDetails.expiresAt) : dayjs(),
         );
         setValue("instruction", itemDetails.instruction || "");
-
+        setValue("specialInformation", itemDetails.specialInformation || "");
         setValue("isDigital", itemDetails.isDigital! || false);
         setValue("currency", itemDetails.currency! || "");
         setValue("country", itemDetails.country! || "");
@@ -598,7 +598,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
           long: data.longDescription,
         },
         instruction: data.instruction,
-
+        specialInformation: data.specialInformation,
         price: parseFloat(data.price),
         expiresAt: data.expiresAt,
         isDigital: data.isDigital,
@@ -1364,6 +1364,45 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           helperText={errors.longDescription?.message || " "}
                           multiline
                           rows={2}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                </div>
+                {/* special information */}
+                <div className="">
+                  <Controller
+                    control={control}
+                    name="specialInformation"
+                    // rules={{
+                    //   required: "Special information is required",
+                    // }}
+                    render={({ field }) => (
+                      <FormControl
+                        fullWidth
+                        error={!!errors.specialInformation}
+                        className="space-y-1"
+                      >
+                        <FormLabel
+                          error={!!errors.specialInformation}
+                          className={`text-sm ${
+                            errors.specialInformation
+                              ? "text-red-400"
+                              : "text-gray-900 dark:text-white"
+                          }`}
+                          htmlFor="specialInformation"
+                        >
+                          Special Information (If applicable)
+                        </FormLabel>
+                        <TextField
+                          {...field}
+                          placeholder="Any special information about the item."
+                          multiline
+                          rows={2}
+                          fullWidth
+                          error={!!errors.specialInformation}
+                          size="small"
+                          helperText={errors.specialInformation?.message || " "}
                         />
                       </FormControl>
                     )}
