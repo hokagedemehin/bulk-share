@@ -26,8 +26,8 @@ export default function MainLayout({
         <Authenticator className="min-h-screen">
           <div className="">
             <AuthHeaderComp />
-            <Toolbar className="mt-2 md:mt-5" />
-            {children}
+            <Toolbar />
+            <div className="">{children}</div>
           </div>
           <footer className="bg-gradient-to-l from-[#1B2746] to-[#101729]">
             <section className="relative container mx-auto overflow-hidden px-3 pt-10 pb-4">

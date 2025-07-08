@@ -8,8 +8,6 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemButton,
-  ListItemText,
   Typography,
 } from "@mui/material";
 import Image from "next/image";
@@ -86,7 +84,7 @@ const AuthHeaderComp = () => {
   return (
     <header
       id="back-to-top-anchor"
-      className="fixed top-0 z-50 w-full bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900"
+      className="fixed top-0 z-50 w-full bg-gradient-to-l from-[#1B2746] to-[#101729] py-4 shadow-md"
     >
       {/* large screen */}
       <div className="container mx-auto hidden md:block">
@@ -101,7 +99,7 @@ const AuthHeaderComp = () => {
             />
             <Typography
               variant="h6"
-              className="font-poppins text-xl font-bold text-gray-900 dark:text-white"
+              className="font-poppins text-xl font-bold text-white"
             >
               Bulk Share
             </Typography>
@@ -110,10 +108,10 @@ const AuthHeaderComp = () => {
             <li>
               <Link
                 href={"/"}
-                className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                   pathname === "/"
-                    ? "font-semibold text-gray-900 dark:text-white"
-                    : "text-gray-400 dark:text-gray-500"
+                    ? "font-semibold text-white"
+                    : "font-medium text-gray-500"
                 }`}
                 onClick={() => handleOpenBackdrop("/")}
               >
@@ -123,10 +121,10 @@ const AuthHeaderComp = () => {
             <li>
               <Link
                 href={"/shared-items"}
-                className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 hover:dark:bg-gray-800 ${
+                className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                   pathname === "/shared-items"
-                    ? "font-semibold text-gray-900 dark:text-white"
-                    : "text-gray-400 dark:text-gray-500"
+                    ? "font-semibold text-white"
+                    : "font-medium text-gray-500"
                 }`}
                 onClick={() => handleOpenBackdrop("/shared-items")}
               >
@@ -138,10 +136,10 @@ const AuthHeaderComp = () => {
                 <li>
                   <Link
                     href={"/my-list"}
-                    className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                    className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                       pathname === "/my-list"
-                        ? "font-semibold text-gray-900 dark:text-white"
-                        : "text-gray-400 dark:text-gray-500"
+                        ? "font-semibold text-white"
+                        : "font-medium text-gray-500"
                     }`}
                     // onClick={() => handleOpenBackdrop("/my-list")}
                   >
@@ -151,10 +149,10 @@ const AuthHeaderComp = () => {
                 <li>
                   <Link
                     href={"/profile"}
-                    className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                    className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                       pathname === "/profile"
-                        ? "font-semibold text-gray-900 dark:text-white"
-                        : "text-gray-400 dark:text-gray-500"
+                        ? "font-semibold text-white"
+                        : "font-medium text-gray-500"
                     }`}
                     // onClick={() => handleOpenBackdrop("/profile")}
                   >
@@ -196,7 +194,7 @@ const AuthHeaderComp = () => {
         </nav>
       </div>
       {/* small screen */}
-      <div id="back-to-top-anchor" className="container mx-auto md:hidden">
+      <div className="container mx-auto block md:hidden">
         <div className="mx-2 flex items-center justify-between">
           <div className="flex items-center">
             <Image
@@ -208,7 +206,7 @@ const AuthHeaderComp = () => {
             />
             <Typography
               variant="h6"
-              className="font-poppins text-lg font-bold text-gray-900 dark:text-white"
+              className="font-poppins text-lg font-bold text-white"
             >
               Bulk Share
             </Typography>
@@ -220,7 +218,7 @@ const AuthHeaderComp = () => {
           >
             <Icon
               icon="heroicons-outline:menu-alt-3"
-              className="text-gray-900 dark:text-white"
+              className="text-white"
               width={30}
               height={30}
             />
@@ -232,10 +230,10 @@ const AuthHeaderComp = () => {
         anchor="right"
         open={toggleDrawer}
         onClose={toggleDrawerHandler(false)}
-        className="bg-gray-100 dark:bg-gray-900"
+        className=""
       >
         <div
-          className="flex h-full w-64 flex-col items-start justify-start bg-gray-100 p-4 dark:bg-gray-900"
+          className="flex h-full w-64 flex-col items-start justify-start bg-gradient-to-bl from-[#1B2746] to-[#101729] p-4"
           role="presentation"
           onClick={toggleDrawerHandler(false)}
           onKeyDown={toggleDrawerHandler(false)}
@@ -250,7 +248,7 @@ const AuthHeaderComp = () => {
             />
             <Typography
               variant="h6"
-              className="font-poppins text-xl font-bold text-gray-900 dark:text-white"
+              className="font-poppins text-xl font-bold text-white"
             >
               Bulk Share
             </Typography>
@@ -259,128 +257,79 @@ const AuthHeaderComp = () => {
             <List className="space-y-4">
               {/* home */}
               <ListItem disablePadding>
-                <ListItemButton
+                <Link
                   href="/"
-                  className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                  className={`font-poppins w-full rounded-lg px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                     pathname === "/"
-                      ? "bg-gray-200 font-medium dark:bg-gray-800"
-                      : ""
+                      ? "font-semibold text-white"
+                      : "font-medium text-gray-500"
                   }`}
                   onClick={() => handleOpenBackdrop("/")}
                 >
-                  <ListItemText
-                    primary={
-                      <Typography
-                        className={`font-poppins w-full text-gray-900 dark:text-white`}
-                      >
-                        Home
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
+                  Home
+                </Link>
               </ListItem>
               {/* shared items */}
               <ListItem disablePadding>
-                <ListItemButton
+                <Link
                   href="/shared-items"
-                  className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                  className={`font-poppins w-full rounded-lg px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                     pathname === "/shared-items"
-                      ? "bg-gray-200 font-medium dark:bg-gray-800"
-                      : ""
+                      ? "font-semibold text-white"
+                      : "font-medium text-gray-500"
                   }`}
-                  onClick={() => handleOpenBackdrop("/shared-items")}
+                  onClick={() => handleOpenBackdrop("/")}
                 >
-                  <ListItemText
-                    primary={
-                      <Typography
-                        className={`font-poppins w-full text-gray-900 dark:text-white`}
-                      >
-                        Shared Items
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
+                  Shared Items
+                </Link>
               </ListItem>
               {userDetails ? (
                 <>
                   {/* my list */}
                   <ListItem disablePadding>
-                    <ListItemButton
+                    <Link
                       href="/my-list"
-                      className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                      className={`font-poppins w-full rounded-lg px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                         pathname === "/my-list"
-                          ? "bg-gray-200 font-medium dark:bg-gray-800"
-                          : ""
+                          ? "font-semibold text-white"
+                          : "font-medium text-gray-500"
                       }`}
-                      onClick={() => handleOpenBackdrop("/my-list")}
                     >
-                      <ListItemText
-                        primary={
-                          <Typography
-                            className={`font-poppins w-full text-gray-900 dark:text-white`}
-                          >
-                            My List
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
+                      My List
+                    </Link>
                   </ListItem>
                   {/* profile */}
                   <ListItem disablePadding>
-                    <ListItemButton
+                    <Link
                       href="/profile"
-                      className={`hover:bg-gray-200 hover:dark:bg-gray-800 ${
+                      className={`font-poppins w-full rounded-lg px-3 py-2 transition duration-300 ease-in-out hover:bg-[#10172950] ${
                         pathname === "/profile"
-                          ? "bg-gray-200 font-medium dark:bg-gray-800"
-                          : ""
+                          ? "font-semibold text-white"
+                          : "font-medium text-gray-500"
                       }`}
-                      onClick={() => handleOpenBackdrop("/profile")}
                     >
-                      <ListItemText
-                        primary={
-                          <Typography
-                            className={`font-poppins w-full text-gray-900 dark:text-white`}
-                          >
-                            Profile
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
+                      Profile
+                    </Link>
                   </ListItem>
-                  {/* sign out */}
+                  {/* log out */}
                   <ListItem disablePadding>
-                    <ListItemButton
-                      className={`hover:bg-gray-200 hover:dark:bg-gray-800`}
+                    <Link
+                      href="#"
+                      className={`font-poppins w-full rounded-lg px-3 py-2 font-medium text-gray-500 transition duration-300 ease-in-out hover:bg-[#10172950]`}
                       onClick={handleSignOut}
                     >
-                      <ListItemText
-                        primary={
-                          <Typography
-                            className={`font-poppins w-full text-gray-900 dark:text-white`}
-                          >
-                            Log out
-                          </Typography>
-                        }
-                      />
-                    </ListItemButton>
+                      Log out
+                    </Link>
                   </ListItem>
                 </>
               ) : (
                 <ListItem disablePadding>
-                  <ListItemButton
+                  <Link
                     href="/my-list"
-                    className="hover:bg-gray-200 hover:dark:bg-gray-800"
+                    className={`font-poppins w-full rounded-lg px-3 py-2 font-medium text-gray-500 transition duration-300 ease-in-out hover:bg-[#10172950]`}
                   >
-                    <ListItemText
-                      primary={
-                        <Typography
-                          className={`font-poppins w-full text-gray-900 dark:text-white`}
-                        >
-                          Get started
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
+                    Get started
+                  </Link>
                 </ListItem>
               )}
             </List>
