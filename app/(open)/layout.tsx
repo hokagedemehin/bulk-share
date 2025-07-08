@@ -18,7 +18,7 @@ import CustomBackdrop from "@/components/layout/CustomBackdrop";
 import { usePathname } from "next/navigation";
 import { useOpenBackdrop } from "@/hooks/backdrop";
 import { signOut } from "aws-amplify/auth";
-import { PushRouter } from "@/util/helpers/routers";
+// import { PushRouter } from "@/util/helpers/routers";
 
 export default function MainLayout({
   children,
@@ -58,16 +58,17 @@ export default function MainLayout({
   /********************************************************
    * SIGN OUT
    ********************************************************/
-  const pushRouter = PushRouter();
+  // const pushRouter = PushRouter();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
       localStorage.removeItem("bulk-share-email");
-      // handleOpenBackdrop("/");
-      pushRouter("/");
+      await signOut();
       setAuthenticated(false);
-      window.location.reload();
+      // handleOpenBackdrop("/");
+      // pushRouter("/");
+      window.location.href = "/";
+      // window.location.reload();
     } catch (error) {
       console.error("Error signing out: ", error);
     }

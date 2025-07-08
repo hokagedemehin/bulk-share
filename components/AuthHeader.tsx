@@ -15,13 +15,13 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useOpenBackdrop } from "@/hooks/backdrop";
 import { fetchUserAttributes, signOut } from "aws-amplify/auth";
 import { Icon } from "@iconify/react";
 import { useAppDispatch } from "@/util/store/store";
 import { setProfile } from "@/util/store/slice/profileSlice";
-import { setOpenBackdrop } from "@/util/store/slice/backdropSlice";
+// import { setOpenBackdrop } from "@/util/store/slice/backdropSlice";
 
 Amplify.configure(outputs);
 
@@ -29,7 +29,7 @@ const AuthHeaderComp = () => {
   const pathname = usePathname();
   const handleOpenBackdrop = useOpenBackdrop();
   const app_dispatch = useAppDispatch();
-  const router = useRouter();
+  // const router = useRouter();
   /********************************************************
    * DRAWER
    ********************************************************/
@@ -71,12 +71,13 @@ const AuthHeaderComp = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
       localStorage.removeItem("bulk-share-email");
       app_dispatch(setProfile(null));
-      app_dispatch(setOpenBackdrop());
-      router.push("/");
-      window.location.reload();
+      // app_dispatch(setOpenBackdrop());
+      await signOut();
+      window.location.href = "/";
+      // router.push("/");
+      // window.location.reload();
     } catch (error) {
       console.error("Error signing out: ", error);
     }
