@@ -1622,6 +1622,25 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                                           disableUnderline
                                           displayEmpty
                                           MenuProps={MenuProps}
+                                          renderValue={(value) => {
+                                            const selectedCountry =
+                                              countryList.find(
+                                                (item: any) =>
+                                                  item.phone_code === value,
+                                              );
+                                            return selectedCountry
+                                              ? `+${selectedCountry.phone_code}`
+                                              : "🌍+00";
+                                          }}
+                                          sx={{
+                                            width: "75px",
+                                            marginRight: "8px",
+                                            marginLeft: "-8px",
+                                            "& .MuiSelect-select": {
+                                              paddingLeft: "8px",
+                                              paddingRight: "8px",
+                                            },
+                                          }}
                                         >
                                           {countryList.map((country: any) => (
                                             <MenuItem
@@ -1630,7 +1649,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
                                             >
                                               {country.flag} +
                                               {country.phone_code}{" "}
-                                              {country.iso3}
+                                              {country.label}
                                             </MenuItem>
                                           ))}
                                         </Select>

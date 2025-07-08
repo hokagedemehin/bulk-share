@@ -304,7 +304,7 @@ const MyListPage = () => {
       </section>
       <section className="px-3 md:px-1">
         {activeItems.length === 0 && (
-          <section className="container mx-auto flex h-[50vh] flex-col items-center justify-center">
+          <section className="container mx-auto mb-4 flex h-[50vh] flex-col items-center justify-center">
             <Image
               src="/emptylist1.png"
               alt="empty list"
@@ -360,7 +360,7 @@ const MyListPage = () => {
                   <p className="font-poppins mt-3 text-gray-500 dark:text-gray-400">
                     {item?.members?.length - 1} members joined
                   </p>
-                  <div className="mt-5 mb-2 flex items-center justify-between gap-2">
+                  <div className="mt-5 mb-4 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <IconButton
                         className="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"

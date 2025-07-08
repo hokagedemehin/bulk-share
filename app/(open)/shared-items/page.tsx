@@ -354,7 +354,7 @@ const SharedListPage = () => {
       </section>
       <section className="">
         {listItems.length === 0 && (
-          <section className="container mx-auto flex h-[50vh] flex-col items-center justify-center">
+          <section className="container mx-auto mb-4 flex h-[50vh] flex-col items-center justify-center">
             <Image
               src="/emptylist1.png"
               alt="empty list"

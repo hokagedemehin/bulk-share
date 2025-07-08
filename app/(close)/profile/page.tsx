@@ -423,14 +423,23 @@ const ProfilePage = () => {
                                   disableUnderline
                                   displayEmpty
                                   MenuProps={MenuProps}
-                                  // value={phoneCountry}
-                                  // onChange={(e) => {
-                                  //   // setPhoneCountry(e.target.value);
-                                  //   // setValue("phone", e.target.value + field.value);
-                                  //   // clearErrors("phone");
-                                  //   const phoneCode = e.target.value;
-                                  //   setValue("phone_code", phoneCode);
-                                  // }}
+                                  renderValue={(value) => {
+                                    const selectedCountry = countryList.find(
+                                      (item: any) => item.phone_code === value,
+                                    );
+                                    return selectedCountry
+                                      ? `+${selectedCountry.phone_code}`
+                                      : "🌍+00";
+                                  }}
+                                  sx={{
+                                    width: "75px",
+                                    marginRight: "8px",
+                                    marginLeft: "-8px",
+                                    "& .MuiSelect-select": {
+                                      paddingLeft: "8px",
+                                      paddingRight: "8px",
+                                    },
+                                  }}
                                 >
                                   {countryList.map((country: any) => (
                                     <MenuItem
@@ -438,7 +447,7 @@ const ProfilePage = () => {
                                       value={country.phone_code}
                                     >
                                       {country.flag} +{country.phone_code}{" "}
-                                      {country.iso3}
+                                      {country.label}
                                     </MenuItem>
                                   ))}
                                 </Select>
