@@ -216,24 +216,6 @@ export default function Home() {
       {/* latest shared items available */}
       <div id="shared-items" className="px-3">
         <section className="container mx-auto my-10">
-          <div className="flex flex-col items-center justify-center">
-            <div className="flex w-fit items-center rounded-full border border-[#1BADFF50] p-1.5">
-              <div className="rounded-full bg-[#F6F9FA] p-1">
-                <Icon
-                  icon="hugeicons:share-02"
-                  className="text-sm text-[#1BADFF] md:text-xl"
-                  // width={20}
-                  // height={20}
-                />
-              </div>
-              <Typography className="font-poppins ml-2 text-sm text-[#1A1A1AB2] md:text-base dark:text-white">
-                Shared Items
-              </Typography>
-            </div>
-            <h2 className="font-bricolage-grotesque mt-4 text-center text-lg font-normal text-gray-900 md:w-[40%] md:text-2xl dark:text-white">
-              See what items others are sharing. You just might be interested!
-            </h2>
-          </div>
           <SharedItemsComp />
         </section>
       </div>
