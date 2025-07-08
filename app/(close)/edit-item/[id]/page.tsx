@@ -604,6 +604,7 @@ const EditItemPage = ({ params }: { params: Promise<{ id: string }> }) => {
         isDigital: data.isDigital,
         currency: data.currency,
         country: data.country,
+        flag: findCountry?.emoji || "",
         state: data.state,
         location: data.location,
         coverImage: coverURL || "",

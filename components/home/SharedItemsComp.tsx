@@ -3,24 +3,15 @@ import { Amplify } from "aws-amplify";
 import "@aws-amplify/ui-react/styles.css";
 import outputs from "@/amplify_outputs.json";
 
-import { useCloseBackdrop } from "@/hooks/backdrop";
-import { setOpenBackdrop } from "@/util/store/slice/backdropSlice";
-import { useAppDispatch } from "@/util/store/store";
+import { useCloseBackdrop, useOpenBackdrop } from "@/hooks/backdrop";
 import {
-  // Box,
   Button,
   Dialog,
   DialogContent,
   DialogTitle,
-  // Fab,
-  // Fade,
   IconButton,
-  MenuItem,
   Paper,
-  Select,
-  TextField,
   Typography,
-  // useScrollTrigger,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSharedItems } from "@/hooks/items";
@@ -44,101 +35,35 @@ import {
   WhatsappIcon,
   XIcon,
 } from "react-share";
-import { useDebounce } from "use-debounce";
 import { getAllISOCodes } from "iso-country-currency";
 import Link from "next/link";
-import { country_states } from "@/util/helpers/country_state";
-// import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import CountUp from "react-countup";
 
 Amplify.configure(outputs);
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      // border: "1px solid",
-      // width: 250,
-    },
-  },
-};
-
-const SharedListPage = () => {
+const SharedItemsComp = () => {
   useCloseBackdrop();
   const { allListItems } = useSharedItems();
   const currencyList = useMemo(() => getAllISOCodes(), []);
-  const app_dispatch = useAppDispatch();
-
-  /*********************************************
-   *  COUNTRY LIST
-   * **********************************************/
-  const [selectedCountry, setSelectedCountry] = useState("world" as string);
-  const [countryList, setCountryList] = useState([] as any);
-
-  useEffect(() => {
-    const tempArr: any = [];
-
-    country_states.map((item: any) => {
-      tempArr.push({
-        id: item?.iso2,
-        iso3: item?.iso3,
-        iso2: item?.iso2,
-        label: item?.name,
-        value: item?.name,
-        symbol: item?.currency_symbol,
-        currency: item?.currency,
-        flag: item?.emoji,
-        phone_code: item?.phone_code.replace(/\D/g, ""),
-      });
-    });
-    setCountryList(tempArr);
-
-    return () => {};
-  }, []);
+  const handleOpenBackdrop = useOpenBackdrop();
 
   /********************************************
    * LIST ITMES
    ********************************************/
   const [listItems, setListItems] = useState([] as any);
-  const [defaultListItems, setDefaultListItems] = useState([] as any);
 
-  console.log("listItems", listItems);
-  console.log("defaultListItems", defaultListItems);
+  // console.log("listItems", listItems);
+  // console.log("defaultListItems", defaultListItems);
 
   useEffect(() => {
     if (allListItems) {
       const filterItems = allListItems.filter(
         (item: any) => item.visibleTo === "everyone",
       );
+      const firstFewItems = filterItems.slice(0, 6);
       const temp = [] as any;
-      filterItems.forEach((item: any) => {
-        temp.push({
-          id: item.id,
-          name: item.name,
-          firstName: item.contactName?.split(" ")[0] || "Unknown",
-          lastName: item.contactName?.split(" ")[1] || "User",
-          coverImage: item.coverImage || "/itemImage1.png",
-          price: item.price,
-          currency: item.currency,
-          country: item.country,
-          flag: item.flag,
-          peopleRequired: item.peopleRequired,
-          members:
-            item.members?.filter((member: any) => member.status === "confirmed")
-              .length || 0,
-        });
-      });
-      if (selectedCountry === "world") {
-        const firstFewItems = temp.slice(0, 6);
-        setListItems(firstFewItems);
-        setDefaultListItems(temp);
-      } else {
-        const countryFilteredItems = filterItems.filter(
-          (item: any) => item.country === selectedCountry,
-        );
-        const temp = [] as any;
-        countryFilteredItems.forEach((item: any) => {
+      if (firstFewItems.length > 0) {
+        firstFewItems.forEach((item: any) => {
           temp.push({
             id: item.id,
             name: item.name,
@@ -156,56 +81,31 @@ const SharedListPage = () => {
               ).length || 0,
           });
         });
-        if (countryFilteredItems.length === 0) {
-          setListItems([]);
-          setDefaultListItems([]);
-          return;
-        }
-        const firstFewItems = temp.slice(0, 3);
-        setListItems(firstFewItems);
-        setDefaultListItems(temp);
+        setListItems(temp);
+      } else {
+        setListItems([]);
       }
+      // if (selectedCountry === "world") {
+      //   const firstFewItems = filterItems.slice(0, 6);
+      //   setListItems(firstFewItems);
+      //   setDefaultListItems(filterItems);
+      // } else {
+      //   const countryFilteredItems = filterItems.filter(
+      //     (item: any) => item.country === selectedCountry,
+      //   );
+      //   if (countryFilteredItems.length === 0) {
+      //     setListItems([]);
+      //     setDefaultListItems([]);
+      //     return;
+      //   }
+      //   const firstFewItems = countryFilteredItems.slice(0, 3);
+      //   setListItems(firstFewItems);
+      //   setDefaultListItems(countryFilteredItems);
+      // }
     }
 
     return () => {};
-  }, [allListItems, selectedCountry]);
-
-  /********************************************
-   * BACK TO TOP BUTTON
-   ********************************************/
-  // function ScrollTop() {
-  //   const trigger = useScrollTrigger({
-  //     target: window ? window : undefined,
-  //     disableHysteresis: true,
-  //     threshold: 100,
-  //   });
-
-  //   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-  //     const anchor = (
-  //       (event.target as HTMLDivElement).ownerDocument || document
-  //     ).querySelector("#back-to-top-anchor");
-
-  //     if (anchor) {
-  //       anchor.scrollIntoView({
-  //         block: "center",
-  //       });
-  //     }
-  //   };
-
-  //   return (
-  //     <Fade in={trigger}>
-  //       <Box
-  //         onClick={handleClick}
-  //         role="presentation"
-  //         sx={{ position: "fixed", bottom: 16, right: 16 }}
-  //       >
-  //         <Fab size="small" aria-label="scroll back to top">
-  //           <KeyboardArrowUpIcon />
-  //         </Fab>
-  //       </Box>
-  //     </Fade>
-  //   );
-  // }
+  }, [allListItems]);
 
   /*********************************************
    * SHARE DIALOG
@@ -227,151 +127,14 @@ const SharedListPage = () => {
   const shareTitle = `Join this item group on Bulk Share and save money by buying in bulk!`;
   const description = `Join this item group on Bulk Share and save money by buying in bulk!`;
 
-  /********************************************
-   * LOAD MORE BUTTON
-   ********************************************/
-  const [endIndex, setEndIndex] = useState(6);
-  const handleLoadMore = () => {
-    setEndIndex((prev) => prev + 6);
-    if (defaultListItems.length > endIndex) {
-      const nextItems = defaultListItems.slice(0, endIndex + 3);
-      setListItems(nextItems);
-    } else {
-      setListItems(defaultListItems);
-    }
-  };
-
-  /********************************************
-   * SEARCH FUNCTIONALITY
-   ********************************************/
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
-
-  // const handleSearchChange = useCallback(
-  //   () => {
-  //         if (debouncedSearchTerm) {
-  //     const filteredItems = defaultListItems.filter(
-  //       (item: any) =>
-  //         item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-  //         item.description?.short
-  //           .toLowerCase()
-  //           .includes(debouncedSearchTerm.toLowerCase()),
-  //     );
-  //     const firstFewItems = filteredItems.slice(0, endIndex);
-  //     setListItems(firstFewItems);
-  //   } else {
-  //     setListItems(defaultListItems.slice(0, endIndex));
-  //   }
-  //   },
-  //   [debouncedSearchTerm, defaultListItems, endIndex],
-  // )
-
-  useEffect(() => {
-    if (debouncedSearchTerm) {
-      const filteredItems = defaultListItems.filter(
-        (item: any) =>
-          item.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-          item.firstName
-            .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase()) ||
-          item.lastName
-            .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase()) ||
-          item.country
-            .toLowerCase()
-            .includes(debouncedSearchTerm.toLowerCase()),
-      );
-      setListItems(filteredItems);
-    } else {
-      setListItems(defaultListItems.slice(0, endIndex));
-    }
-  }, [debouncedSearchTerm, defaultListItems, endIndex]);
-
   return (
-    <div className="mt-4 px-2">
-      <section className="container mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <h1 className="text-2xl font-bold">Shared Items</h1>
-          <div className="flex space-x-2">
-            <TextField
-              placeholder="Search items..."
-              variant="outlined"
-              size="small"
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                },
-                // "& .MuiInputBase-input": {
-                //   padding: "10px 12px",
-                // },
-              }}
-              className="w-full max-w-[300px]"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Select
-              value={selectedCountry}
-              onChange={(event) => {
-                console.log("Selected country:", defaultListItems);
-                setSelectedCountry(event.target.value as string);
-                // if (event.target.value === "world") {
-                //   setListItems(defaultListItems);
-                // } else {
-                //   const countryFilteredItems = defaultListItems.filter(
-                //     (item: any) => item.country === event.target.value,
-                //   );
-                //   setListItems(countryFilteredItems);
-                // }
-              }}
-              fullWidth
-              size="small"
-              MenuProps={MenuProps}
-              className="rounded-lg text-black dark:text-white"
-            >
-              <MenuItem
-                value="world"
-                onClick={() => {
-                  setSelectedCountry("world");
-                  setListItems(defaultListItems);
-                }}
-              >
-                <span className="text-gray-600 dark:text-gray-400">
-                  Worldwide
-                </span>
-              </MenuItem>
-              {countryList.map((item: any) => (
-                <MenuItem key={item.id} value={item.value}>
-                  {item.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </div>
-        </div>
-        <p className="mt-2 text-gray-600">
-          This is the shared items page. Find all the items you can share with
-          others.
-        </p>
-      </section>
-      <section className="">
-        {listItems.length === 0 && (
-          <section className="container mx-auto flex h-[50vh] flex-col items-center justify-center">
-            <Image
-              src="/emptylist1.png"
-              alt="empty list"
-              width={1000}
-              height={1000}
-              className="h-auto w-full max-w-[400px] rounded-2xl object-cover"
-            />
-            <h1 className="text-2xl font-bold text-gray-500">
-              No active items available for now. Please check back later.
-            </h1>
-          </section>
-        )}
-        {listItems.length > 0 && (
-          <section className="container mx-auto my-5 mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <section className="pt-8 pb-5">
+      {listItems.length > 0 && (
+        <div className="">
+          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {listItems.map((item: any) => (
               <Paper
-                elevation={2}
+                elevation={0}
                 key={item?.id}
                 className="rounded-xl border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900"
               >
@@ -402,7 +165,7 @@ const SharedListPage = () => {
                         className="text-sm text-[#909EB0] dark:text-gray-300"
                       />
                       <Typography className="font-poppins text-sm font-medium text-gray-900 md:text-sm dark:text-white">
-                        <span className="text-sm">{item?.members}</span>
+                        <CountUp end={item?.members} duration={2} />
                         <span className="text-sm text-[#909EB0]">
                           /{item?.peopleRequired}
                         </span>
@@ -411,8 +174,7 @@ const SharedListPage = () => {
                   </div>
                   <div className="mt-3 flex items-center space-x-4">
                     <Typography className="font-poppins max-w-[80%] truncate font-medium text-gray-900/60 md:text-base dark:text-gray-300">
-                      {item?.firstName}{" "}
-                      {item?.lastName && item?.lastName[0]?.toUpperCase()}.
+                      {item?.firstName} {item?.lastName[0]?.toUpperCase()}.
                     </Typography>
                     <div className="h-6 border-l border-[#E0E6EE]"></div>
                     <div className="flex items-center space-x-2">
@@ -473,7 +235,7 @@ const SharedListPage = () => {
                     <Link
                       href={`/shared-items/${item?.id}`}
                       onClick={() => {
-                        app_dispatch(setOpenBackdrop());
+                        handleOpenBackdrop(`/shared-items/${item?.id}`);
                       }}
                       className="font-poppins w-full rounded-lg border border-[#E0E6EE] bg-white px-2 py-1 text-center font-medium text-black normal-case transition duration-300 hover:bg-[#00000010] md:px-4 dark:hover:bg-slate-200"
                     >
@@ -483,31 +245,24 @@ const SharedListPage = () => {
                 </div>
               </Paper>
             ))}
-          </section>
-        )}
-        {listItems.length > 0 && searchTerm === "" && (
-          <div className="mb-4 flex justify-center">
-            <Button
-              variant="outlined"
-              color="primary"
-              className="font-poppins rounded-xl normal-case"
-              onClick={() => {
-                handleLoadMore();
-              }}
-              disabled={
-                listItems.length >= defaultListItems.length ||
-                defaultListItems.length === 0 ||
-                (searchTerm !== "" && listItems.length <= 6)
-              }
-            >
-              {listItems.length >= defaultListItems.length ||
-              (searchTerm !== "" && listItems.length <= 6)
-                ? "No more items"
-                : "Load More"}
-            </Button>
           </div>
-        )}
-      </section>
+          <div className="my-8 flex justify-center">
+            <Link
+              href="/shared-items"
+              onClick={() => {
+                handleOpenBackdrop("/shared-items");
+              }}
+              className="font-poppins flex items-center rounded-lg bg-[#1A1A1A10] px-2 py-2 text-sm font-medium text-black normal-case transition duration-300 hover:bg-gray-200 md:px-6 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-900/50"
+            >
+              See more items
+              <Icon
+                icon="hugeicons:link-square-01"
+                className="ml-2 text-sm text-[#141B34] md:text-base dark:text-white"
+              />
+            </Link>
+          </div>
+        </div>
+      )}
       {/* share dialog */}
       <Dialog
         open={openShareDialog}
@@ -615,9 +370,8 @@ const SharedListPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-      {/* <ScrollTop /> */}
-    </div>
+    </section>
   );
 };
 
-export default SharedListPage;
+export default SharedItemsComp;

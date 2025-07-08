@@ -50,7 +50,7 @@ export async function generateMetadata(
           {
             url:
               data?.coverImage ||
-              "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+              "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
             width: 1200,
             height: 630,
             alt: `${data?.name}`,
@@ -58,7 +58,7 @@ export async function generateMetadata(
           {
             url:
               data?.coverImage ||
-              "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+              "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
             width: 800,
             height: 600,
             alt: `${data?.name}`,
@@ -66,7 +66,7 @@ export async function generateMetadata(
           {
             url:
               data?.coverImage ||
-              "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+              "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
             width: 1800,
             height: 1600,
             alt: `${data?.name}`,
@@ -83,7 +83,7 @@ export async function generateMetadata(
           : prevData.description!,
         images: [
           data?.coverImage ||
-            "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+            "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
         ],
         site: "@bulkshare",
         creator: "@hokage_demehin",

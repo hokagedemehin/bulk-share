@@ -15,6 +15,7 @@ import {
   // Fade,
   IconButton,
   Paper,
+  Typography,
   // useScrollTrigger,
 } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
@@ -271,23 +272,23 @@ const MyListPage = () => {
     <div className="">
       <section className="container mx-auto my-5 px-3 md:px-1">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">My List</h1>
+          <h1 className="font-poppins text-2xl font-bold">My List</h1>
           <div className="flex items-center space-x-3">
             {closedItemsLength > 0 && (
               <Link
                 href="/my-closed-list"
-                className="rounded-xl border border-red-700 px-5 py-2 text-sm text-red-700 transition duration-300 ease-in-out hover:bg-red-50 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-50/10"
+                className="font-poppins rounded-xl border border-red-700 px-5 py-2 text-sm text-red-700 transition duration-300 ease-in-out hover:bg-red-50 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-50/10"
                 onClick={() => {
                   app_dispatch(setOpenBackdrop());
                 }}
               >
-                Closed items
+                Closed Items
               </Link>
             )}
             <Button
               variant="contained"
               color="primary"
-              className="font-poppins rounded-xl"
+              className="font-poppins rounded-xl normal-case"
               onClick={() => {
                 app_dispatch(setOpenBackdrop());
                 router.push("/create-new-item");
@@ -297,7 +298,7 @@ const MyListPage = () => {
             </Button>
           </div>
         </div>
-        <p className="mt-2 text-gray-600">
+        <p className="font-poppins mt-2 text-gray-600">
           This is the my list page. You can manage your list here.
         </p>
       </section>
@@ -311,57 +312,55 @@ const MyListPage = () => {
               height={1000}
               className="h-auto w-full max-w-[400px] rounded-2xl object-cover"
             />
-            <h1 className="text-2xl font-bold text-gray-500">
+            <h1 className="font-poppins text-2xl font-bold text-gray-500">
               No items found. Please add an item.
             </h1>
           </section>
         )}
         {activeItems.length > 0 && (
-          <section className="container mx-auto my-5 mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <section className="container mx-auto my-5 mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {activeItems.map((item: any) => (
               <Paper
                 key={item?.id}
                 elevation={3}
-                className="mb-10 rounded-xl px-4"
+                className="rounded-xl border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900"
               >
-                <div className="flex h-[18rem] -translate-y-10 justify-center">
-                  <Image
-                    src={item?.coverImage || "/itemImage1.png"}
-                    alt={item?.name}
-                    width={1000}
-                    height={1000}
-                    className="h-auto w-full max-w-[300px] rounded-2xl object-cover"
-                  />
-                </div>
-                <div className="-translate-y-5">
-                  <h2 className="text-xl font-bold">{item?.name}</h2>
-                  <p className="mt-2 truncate text-gray-500 dark:text-gray-400">
-                    {item?.description?.short}
-                  </p>
-                  <p className="font-poppins mt-2 text-lg text-gray-600 dark:text-white">
+                <Image
+                  src={item?.coverImage || "/itemImage1.png"}
+                  alt={item?.name}
+                  width={500}
+                  height={500}
+                  className="h-[250px] w-full rounded-xl object-cover"
+                />
+                <div className="flex h-[45%] flex-col justify-end">
+                  <div className="mt-2">
+                    <Typography
+                      component={"h2"}
+                      sx={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                      className="font-poppins w-[90%] text-sm font-medium text-gray-900 md:text-lg dark:text-white"
+                    >
+                      {item?.name}
+                    </Typography>
+                  </div>
+
+                  <p className="font-poppins mt-3 text-lg text-gray-600 dark:text-white">
                     {
                       currencyList.find(
                         (currency: any) => currency.currency === item?.currency,
                       )?.symbol
                     }
-                    {new Intl.NumberFormat(
-                      "en-US",
-                      // `en-${
-                      //   currencyList.find(
-                      //     (currency: any) =>
-                      //       currency.currency === item?.currency,
-                      //   )?.iso
-                      // }`,
-                      // {
-                      //   style: "currency",
-                      //   currency: item?.currency,
-                      // },
-                    ).format(item?.price)}
+                    {new Intl.NumberFormat("en-US").format(item?.price)}
                   </p>
-                  <p className="mt-2 text-gray-500 dark:text-gray-400">
+                  <p className="font-poppins mt-3 text-gray-500 dark:text-gray-400">
                     {item?.members?.length - 1} members joined
                   </p>
-                  <div className="mt-4 flex items-center justify-between gap-2">
+                  <div className="mt-5 mb-2 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <IconButton
                         className="rounded-full bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
@@ -407,7 +406,7 @@ const MyListPage = () => {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/edit-item/${item?.id}`}
-                        className="rounded-xl border border-sky-700 px-5 py-2 text-sm text-sky-700 transition duration-300 ease-in-out hover:bg-sky-50 dark:border-sky-500 dark:text-sky-500 dark:hover:bg-sky-50/10"
+                        className="font-poppins rounded-xl border border-sky-700 px-4 py-1.5 text-sm text-sky-700 transition duration-300 ease-in-out hover:bg-sky-50 dark:border-sky-500 dark:text-sky-500 dark:hover:bg-sky-50/10"
                         onClick={() => {
                           app_dispatch(setOpenBackdrop());
                         }}
@@ -416,7 +415,7 @@ const MyListPage = () => {
                       </Link>
                       <Link
                         href={`/my-item/${item?.id}`}
-                        className="rounded-xl border border-green-700 px-5 py-2 text-sm text-green-700 transition duration-300 ease-in-out hover:bg-green-50 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-50/10"
+                        className="font-poppins rounded-xl border border-green-700 px-4 py-1.5 text-sm text-green-700 transition duration-300 ease-in-out hover:bg-green-50 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-50/10"
                         onClick={() => {
                           app_dispatch(setOpenBackdrop());
                         }}

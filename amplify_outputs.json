@@ -193,6 +193,13 @@
               "isRequired": false,
               "attributes": []
             },
+            "flag": {
+              "name": "flag",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "state": {
               "name": "state",
               "isArray": false,

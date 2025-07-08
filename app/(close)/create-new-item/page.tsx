@@ -497,6 +497,7 @@ const CreateNewItem = () => {
         expiresAt: dayjs(data.expiresAt).toISOString(),
         currency: data.currency,
         country: data.country,
+        flag: findCountry?.emoji || "",
         state: data.state,
         location: data.location,
         coverImage: coverURL || "",

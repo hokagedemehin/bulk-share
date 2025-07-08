@@ -76,6 +76,7 @@ const AuthHeaderComp = () => {
       app_dispatch(setProfile(null));
       app_dispatch(setOpenBackdrop());
       router.push("/");
+      window.location.reload();
     } catch (error) {
       console.error("Error signing out: ", error);
     }
@@ -87,31 +88,31 @@ const AuthHeaderComp = () => {
       className="fixed top-0 z-50 w-full bg-gray-100 py-2 shadow-md md:py-4 dark:bg-gray-900"
     >
       {/* large screen */}
-      <div className="container mx-auto hidden items-center justify-between md:flex">
-        <div className="flex items-center">
-          <Image
-            src="/logo/bulk-logo.png"
-            alt="Bulk Share Logo"
-            width={50}
-            height={50}
-            className="mr-2"
-          />
-          <Typography
-            variant="h6"
-            className="font-poppins text-xl font-bold text-gray-900 dark:text-white"
-          >
-            Bulk Share
-          </Typography>
-        </div>
-        <nav>
+      <div className="container mx-auto hidden md:block">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Image
+              src="/logo/bulklogo2.png"
+              alt="Bulk Share Logo"
+              width={50}
+              height={50}
+              className="mr-2"
+            />
+            <Typography
+              variant="h6"
+              className="font-poppins text-xl font-bold text-gray-900 dark:text-white"
+            >
+              Bulk Share
+            </Typography>
+          </div>
           <ul className="flex items-center space-x-4">
             <li>
               <Link
                 href={"/"}
-                className={`font-poppins rounded-xl px-3 py-2 text-gray-900 transition duration-300 ease-in-out hover:bg-gray-200 dark:text-white hover:dark:bg-gray-800 ${
+                className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-800 ${
                   pathname === "/"
-                    ? "bg-gray-200 font-medium dark:bg-gray-800"
-                    : ""
+                    ? "font-semibold text-gray-900 dark:text-white"
+                    : "text-gray-400 dark:text-gray-500"
                 }`}
                 onClick={() => handleOpenBackdrop("/")}
               >
@@ -121,27 +122,27 @@ const AuthHeaderComp = () => {
             <li>
               <Link
                 href={"/shared-items"}
-                className={`font-poppins rounded-xl px-3 py-2 text-gray-900 transition duration-300 ease-in-out hover:bg-gray-200 dark:text-white hover:dark:bg-gray-800 ${
+                className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 hover:dark:bg-gray-800 ${
                   pathname === "/shared-items"
-                    ? "bg-gray-200 font-medium dark:bg-gray-800"
-                    : ""
+                    ? "font-semibold text-gray-900 dark:text-white"
+                    : "text-gray-400 dark:text-gray-500"
                 }`}
                 onClick={() => handleOpenBackdrop("/shared-items")}
               >
-                Shared Items
+                Browse Items
               </Link>
             </li>
-            {userDetails ? (
+            {userDetails && (
               <>
                 <li>
                   <Link
                     href={"/my-list"}
-                    className={`font-poppins rounded-xl px-3 py-2 text-gray-900 transition duration-300 ease-in-out hover:bg-gray-200 dark:text-white hover:dark:bg-gray-800 ${
+                    className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-800 ${
                       pathname === "/my-list"
-                        ? "bg-gray-200 font-medium dark:bg-gray-800"
-                        : ""
+                        ? "font-semibold text-gray-900 dark:text-white"
+                        : "text-gray-400 dark:text-gray-500"
                     }`}
-                    onClick={() => handleOpenBackdrop("/my-list")}
+                    // onClick={() => handleOpenBackdrop("/my-list")}
                   >
                     My List
                   </Link>
@@ -149,16 +150,22 @@ const AuthHeaderComp = () => {
                 <li>
                   <Link
                     href={"/profile"}
-                    className={`font-poppins rounded-xl px-3 py-2 text-gray-900 transition duration-300 ease-in-out hover:bg-gray-200 dark:text-white hover:dark:bg-gray-800 ${
+                    className={`font-poppins rounded-xl px-3 py-2 transition duration-300 ease-in-out hover:bg-gray-100 dark:hover:bg-gray-800 ${
                       pathname === "/profile"
-                        ? "bg-gray-200 font-medium dark:bg-gray-800"
-                        : ""
+                        ? "font-semibold text-gray-900 dark:text-white"
+                        : "text-gray-400 dark:text-gray-500"
                     }`}
-                    onClick={() => handleOpenBackdrop("/profile")}
+                    // onClick={() => handleOpenBackdrop("/profile")}
                   >
                     Profile
                   </Link>
                 </li>
+              </>
+            )}
+          </ul>
+          <ul className="flex items-center space-x-4">
+            {userDetails ? (
+              <>
                 <li>
                   <Button
                     id="menu-list"
@@ -167,7 +174,7 @@ const AuthHeaderComp = () => {
                     onClick={handleSignOut}
                   >
                     <Typography
-                      className={`font-poppins font-medium text-gray-900 normal-case dark:text-white`}
+                      className={`font-poppins font-medium text-gray-400 normal-case dark:text-gray-500`}
                     >
                       Log out
                     </Typography>
@@ -178,7 +185,7 @@ const AuthHeaderComp = () => {
               <li>
                 <Link
                   href={"/my-list"}
-                  className="font-poppins rounded-xl bg-blue-700 px-4 py-2 text-white transition duration-300 ease-in-out hover:bg-blue-800"
+                  className="font-poppins rounded-xl bg-white px-4 py-2 text-sm font-medium text-gray-700 transition duration-300 ease-in-out hover:bg-gray-200"
                 >
                   Get started
                 </Link>
@@ -192,7 +199,7 @@ const AuthHeaderComp = () => {
         <div className="mx-2 flex items-center justify-between">
           <div className="flex items-center">
             <Image
-              src="/logo/bulk-logo.png"
+              src="/logo/bulklogo2.png"
               alt="Bulk Share Logo"
               width={30}
               height={30}
@@ -234,7 +241,7 @@ const AuthHeaderComp = () => {
         >
           <div className="mb-4 flex items-center">
             <Image
-              src="/logo/bulk-logo.png"
+              src="/logo/bulklogo2.png"
               alt="Bulk Share Logo"
               width={50}
               height={50}
