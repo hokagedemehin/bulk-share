@@ -347,7 +347,7 @@ export default function MainLayout({
             </Drawer>
           </header>
           <Toolbar className="" />
-          <div className="pt-5">{children}</div>
+          <div className="">{children}</div>
         </div>
         <footer className="bg-gradient-to-l from-[#1B2746] to-[#101729]">
           <section className="relative container mx-auto overflow-hidden px-3 pt-10 pb-4">

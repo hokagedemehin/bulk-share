@@ -564,7 +564,7 @@ const CreateNewItem = () => {
   };
 
   return (
-    <div>
+    <div className="pt-5">
       <section className="container mx-auto my-5 px-3 md:px-1">
         <div className="mb-3">
           <IconButton aria-label="back" onClick={backRouter}>

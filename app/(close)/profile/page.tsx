@@ -224,7 +224,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="px-2">
+    <div className="px-2 pt-5">
       <section className="container mx-auto my-5">
         <div className="">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">

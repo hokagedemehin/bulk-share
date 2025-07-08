@@ -156,7 +156,7 @@ const MyClosedItemsPage = () => {
   };
 
   return (
-    <div>
+    <div className="pt-5">
       <section className="container mx-auto my-5 px-3 md:px-1">
         <div className="flex items-center justify-between">
           <h1 className="font-poppins text-2xl font-bold">My Closed List</h1>
