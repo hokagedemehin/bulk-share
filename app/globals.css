@@ -12,6 +12,10 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-poppins: var(--font-poppins);
+  --font-noto-sans: var(--font-noto-sans);
+  --font-open-sans: var(--font-open-sans);
+  --font-montserrat: var(--font-montserrat);
+  --font-bricolage-grotesque: var(--font-bricolage-grotesque);
 }
 
 @media (prefers-color-scheme: dark) {

@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Poppins,
+  Noto_Sans,
+  Open_Sans,
+  Montserrat,
+  Bricolage_Grotesque,
+} from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import "./globals.css";
 import ProjectProviders from "@/util/Providers";
@@ -17,6 +25,34 @@ const geistMono = Geist_Mono({
 const poppins = Poppins({
   variable: "--font-poppins",
   weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  subsets: ["latin"],
+});
+
+const notoSans = Noto_Sans({
+  variable: "--font-noto-sans",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  subsets: ["latin"],
+});
+
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  subsets: ["latin"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  subsets: ["latin"],
+});
+
+const bricolageGrotesque = Bricolage_Grotesque({
+  variable: "--font-bricolage-grotesque",
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
   subsets: ["latin"],
 });
@@ -67,19 +103,19 @@ export const metadata: Metadata = {
     siteName: "Bulk Share",
     images: [
       {
-        url: "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+        url: "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
         width: 1200,
         height: 630,
         alt: "Bulk Share",
       },
       {
-        url: "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+        url: "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
         width: 800,
         height: 600,
         alt: "Bulk Share",
       },
       {
-        url: "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+        url: "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
         width: 1800,
         height: 1600,
         alt: "My bulk share alt",
@@ -93,7 +129,7 @@ export const metadata: Metadata = {
     title: "Bulk Share",
     description: "Team up with people to buy in bulk and save money",
     images: [
-      "https://res.cloudinary.com/luvely/image/upload/v1745797156/bulk-logo_eftgk3.png",
+      "https://res.cloudinary.com/luvely/image/upload/v1751819068/icon-512_eqmwke.png",
     ],
     site: "@bulkshare",
     creator: "@hokage_demehin",
@@ -110,7 +146,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.className} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${notoSans.variable} ${openSans.variable} ${montserrat.variable} ${bricolageGrotesque.variable} antialiased`}
       >
         <AppRouterCacheProvider>
           <ProjectProviders>{children}</ProjectProviders>

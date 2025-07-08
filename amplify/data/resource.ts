@@ -30,6 +30,7 @@ const schema = a.schema({
       isDigital: a.boolean().default(false),
       currency: a.string().default("USD"),
       country: a.string(),
+      flag: a.string(),
       state: a.string(),
       location: a.string(),
       coverImage: a.string(),
