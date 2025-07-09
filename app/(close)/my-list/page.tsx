@@ -271,7 +271,7 @@ const MyListPage = () => {
   return (
     <div className="pt-5">
       <section className="container mx-auto my-5 px-3 md:px-1">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="font-poppins text-2xl font-bold">My List</h1>
           <div className="flex items-center space-x-3">
             {closedItemsLength > 0 && (
@@ -304,7 +304,7 @@ const MyListPage = () => {
       </section>
       <section className="px-3 md:px-1">
         {activeItems.length === 0 && (
-          <section className="container mx-auto mb-4 flex h-[50vh] flex-col items-center justify-center">
+          <section className="container mx-auto mb-10 flex h-[50vh] flex-col items-center justify-center">
             <Image
               src="/emptylist1.png"
               alt="empty list"

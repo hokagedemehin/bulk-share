@@ -179,7 +179,7 @@ const MyClosedItemsPage = () => {
       </section>
       <section className="px-3 pb-4 md:px-1">
         {closedItems.length === 0 && (
-          <section className="container mx-auto flex h-[50vh] flex-col items-center justify-center">
+          <section className="container mx-auto mb-10 flex h-[50vh] flex-col items-center justify-center">
             <Image
               src="/emptylist1.png"
               alt="empty list"
