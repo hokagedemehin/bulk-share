@@ -129,157 +129,159 @@ const SharedItemsComp = () => {
 
   return (
     <section className="">
-      <div className="flex flex-col items-center justify-center">
-        <div className="flex w-fit items-center rounded-full border border-[#1BADFF50] p-1.5">
-          <div className="rounded-full bg-[#F6F9FA] p-1">
-            <Icon
-              icon="hugeicons:share-02"
-              className="text-sm text-[#1BADFF] md:text-xl"
-              // width={20}
-              // height={20}
-            />
-          </div>
-          <Typography className="font-poppins ml-2 text-sm text-[#1A1A1AB2] md:text-base dark:text-white">
-            Shared Items
-          </Typography>
-        </div>
-        <h2 className="font-bricolage-grotesque mt-4 text-center text-lg font-normal text-gray-900 md:w-[40%] md:text-2xl dark:text-white">
-          See what items others are sharing. You just might be interested!
-        </h2>
-      </div>
       {listItems.length > 0 && (
-        <div className="pt-8 pb-5">
-          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {listItems.map((item: any) => (
-              <Paper
-                elevation={0}
-                key={item?.id}
-                className="rounded-xl border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900"
-              >
-                <Image
-                  src={item?.coverImage || "/itemImage1.png"}
-                  alt={item?.name}
-                  width={500}
-                  height={500}
-                  className="h-[250px] w-full rounded-xl object-cover"
+        <>
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex w-fit items-center rounded-full border border-[#1BADFF50] p-1.5">
+              <div className="rounded-full bg-[#F6F9FA] p-1">
+                <Icon
+                  icon="hugeicons:share-02"
+                  className="text-sm text-[#1BADFF] md:text-xl"
+                  // width={20}
+                  // height={20}
                 />
-                <div className="flex h-[44%] flex-col justify-end">
-                  <div className="mt-6 flex items-center justify-between space-x-2">
-                    <Typography
-                      sx={{
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                      className="font-poppins w-[90%] text-sm font-medium text-gray-900 md:text-base dark:text-white"
-                    >
-                      {item?.name}
-                    </Typography>
-                    <div className="flex items-center space-x-1">
-                      <Icon
-                        icon="hugeicons:user-multiple"
-                        className="text-sm text-[#909EB0] dark:text-gray-300"
-                      />
-                      <Typography className="font-poppins text-sm font-medium text-gray-900 md:text-sm dark:text-white">
-                        <CountUp end={item?.members} duration={2} />
-                        <span className="text-sm text-[#909EB0]">
-                          /{item?.peopleRequired}
-                        </span>
+              </div>
+              <Typography className="font-poppins ml-2 text-sm text-[#1A1A1AB2] md:text-base dark:text-white">
+                Shared Items
+              </Typography>
+            </div>
+            <h2 className="font-bricolage-grotesque mt-4 text-center text-lg font-normal text-gray-900 md:w-[40%] md:text-2xl dark:text-white">
+              See what items others are sharing. You just might be interested!
+            </h2>
+          </div>
+          <div className="pt-8 pb-5">
+            <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {listItems.map((item: any) => (
+                <Paper
+                  elevation={0}
+                  key={item?.id}
+                  className="rounded-xl border border-gray-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900"
+                >
+                  <Image
+                    src={item?.coverImage || "/itemImage1.png"}
+                    alt={item?.name}
+                    width={500}
+                    height={500}
+                    className="h-[250px] w-full rounded-xl object-cover"
+                  />
+                  <div className="flex h-[44%] flex-col justify-end">
+                    <div className="mt-6 flex items-center justify-between space-x-2">
+                      <Typography
+                        sx={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        className="font-poppins w-[90%] text-sm font-medium text-gray-900 md:text-base dark:text-white"
+                      >
+                        {item?.name}
                       </Typography>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center space-x-4">
-                    <Typography className="font-poppins max-w-[80%] truncate font-medium text-gray-900/60 md:text-base dark:text-gray-300">
-                      {item?.firstName} {item?.lastName[0]?.toUpperCase()}.
-                    </Typography>
-                    <div className="h-6 border-l border-[#E0E6EE]"></div>
-                    <div className="flex items-center space-x-2">
-                      <Typography className="font-poppins font-medium text-gray-900/60 md:text-base dark:text-white">
-                        {item?.country}
-                      </Typography>
-                      <div className="">
-                        {item?.flag ? (
-                          <span className="text-lg">{item?.flag}</span>
-                        ) : (
-                          <span className="text-lg">🌍</span>
-                        )}
+                      <div className="flex items-center space-x-1">
+                        <Icon
+                          icon="hugeicons:user-multiple"
+                          className="text-sm text-[#909EB0] dark:text-gray-300"
+                        />
+                        <Typography className="font-poppins text-sm font-medium text-gray-900 md:text-sm dark:text-white">
+                          <CountUp end={item?.members} duration={2} />
+                          <span className="text-sm text-[#909EB0]">
+                            /{item?.peopleRequired}
+                          </span>
+                        </Typography>
                       </div>
                     </div>
+                    <div className="mt-3 flex items-center space-x-4">
+                      <Typography className="font-poppins max-w-[80%] truncate font-medium text-gray-900/60 md:text-base dark:text-gray-300">
+                        {item?.firstName} {item?.lastName[0]?.toUpperCase()}.
+                      </Typography>
+                      <div className="h-6 border-l border-[#E0E6EE]"></div>
+                      <div className="flex items-center space-x-2">
+                        <Typography className="font-poppins font-medium text-gray-900/60 md:text-base dark:text-white">
+                          {item?.country}
+                        </Typography>
+                        <div className="">
+                          {item?.flag ? (
+                            <span className="text-lg">{item?.flag}</span>
+                          ) : (
+                            <span className="text-lg">🌍</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center space-x-1">
+                      <Typography className="font-poppins max-w-[70%] truncate text-sm font-medium text-gray-900 md:text-base dark:text-white">
+                        {
+                          currencyList.find(
+                            (currency: any) =>
+                              currency.currency === item?.currency,
+                          )?.symbol
+                        }
+                        {new Intl.NumberFormat("en-US").format(item?.price)}
+                      </Typography>
+                      <Typography className="font-poppins text-xs font-medium text-gray-900/60 md:text-sm dark:text-gray-300">
+                        (
+                        {
+                          currencyList.find(
+                            (currency: any) =>
+                              currency.currency === item?.currency,
+                          )?.symbol
+                        }
+                        {item?.peopleRequired > 1 &&
+                          new Intl.NumberFormat("en-US", {
+                            maximumFractionDigits: 2,
+                          }).format(item?.price / item?.peopleRequired)}
+                        /person )
+                      </Typography>
+                    </div>
+                    <div className="mt-5 mb-2 flex items-center space-x-2">
+                      <Button
+                        variant="contained"
+                        disableElevation
+                        startIcon={
+                          <Icon
+                            icon="system-uicons:share"
+                            className="text-sm text-black md:text-base dark:text-white"
+                          />
+                        }
+                        className="font-poppins w-full rounded-lg bg-[#1A1A1A10] px-2 py-1 text-center font-medium text-black normal-case transition duration-300 hover:bg-[#1A1A1A20] md:px-4 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
+                        onClick={() => {
+                          handleOpenShareDialog(item?.id);
+                        }}
+                      >
+                        Share
+                      </Button>
+                      <Link
+                        href={`/shared-items/${item?.id}`}
+                        onClick={() => {
+                          handleOpenBackdrop(`/shared-items/${item?.id}`);
+                        }}
+                        className="font-poppins w-full rounded-lg border border-[#E0E6EE] bg-white px-2 py-1 text-center font-medium text-black normal-case transition duration-300 hover:bg-[#00000010] md:px-4 dark:hover:bg-slate-200"
+                      >
+                        View
+                      </Link>
+                    </div>
                   </div>
-                  <div className="mt-3 flex items-center space-x-1">
-                    <Typography className="font-poppins max-w-[70%] truncate text-sm font-medium text-gray-900 md:text-base dark:text-white">
-                      {
-                        currencyList.find(
-                          (currency: any) =>
-                            currency.currency === item?.currency,
-                        )?.symbol
-                      }
-                      {new Intl.NumberFormat("en-US").format(item?.price)}
-                    </Typography>
-                    <Typography className="font-poppins text-xs font-medium text-gray-900/60 md:text-sm dark:text-gray-300">
-                      (
-                      {
-                        currencyList.find(
-                          (currency: any) =>
-                            currency.currency === item?.currency,
-                        )?.symbol
-                      }
-                      {item?.peopleRequired > 1 &&
-                        new Intl.NumberFormat("en-US", {
-                          maximumFractionDigits: 2,
-                        }).format(item?.price / item?.peopleRequired)}
-                      /person )
-                    </Typography>
-                  </div>
-                  <div className="mt-5 mb-2 flex items-center space-x-2">
-                    <Button
-                      variant="contained"
-                      disableElevation
-                      startIcon={
-                        <Icon
-                          icon="system-uicons:share"
-                          className="text-sm text-black md:text-base dark:text-white"
-                        />
-                      }
-                      className="font-poppins w-full rounded-lg bg-[#1A1A1A10] px-2 py-1 text-center font-medium text-black normal-case transition duration-300 hover:bg-[#1A1A1A20] md:px-4 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600"
-                      onClick={() => {
-                        handleOpenShareDialog(item?.id);
-                      }}
-                    >
-                      Share
-                    </Button>
-                    <Link
-                      href={`/shared-items/${item?.id}`}
-                      onClick={() => {
-                        handleOpenBackdrop(`/shared-items/${item?.id}`);
-                      }}
-                      className="font-poppins w-full rounded-lg border border-[#E0E6EE] bg-white px-2 py-1 text-center font-medium text-black normal-case transition duration-300 hover:bg-[#00000010] md:px-4 dark:hover:bg-slate-200"
-                    >
-                      View
-                    </Link>
-                  </div>
-                </div>
-              </Paper>
-            ))}
+                </Paper>
+              ))}
+            </div>
+            <div className="my-8 flex justify-center">
+              <Link
+                href="/shared-items"
+                onClick={() => {
+                  handleOpenBackdrop("/shared-items");
+                }}
+                className="font-poppins flex items-center rounded-lg bg-[#1A1A1A10] px-2 py-2 text-sm font-medium text-black normal-case transition duration-300 hover:bg-gray-200 md:px-6 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-900/50"
+              >
+                See more items
+                <Icon
+                  icon="hugeicons:link-square-01"
+                  className="ml-2 text-sm text-[#141B34] md:text-base dark:text-white"
+                />
+              </Link>
+            </div>
           </div>
-          <div className="my-8 flex justify-center">
-            <Link
-              href="/shared-items"
-              onClick={() => {
-                handleOpenBackdrop("/shared-items");
-              }}
-              className="font-poppins flex items-center rounded-lg bg-[#1A1A1A10] px-2 py-2 text-sm font-medium text-black normal-case transition duration-300 hover:bg-gray-200 md:px-6 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-900/50"
-            >
-              See more items
-              <Icon
-                icon="hugeicons:link-square-01"
-                className="ml-2 text-sm text-[#141B34] md:text-base dark:text-white"
-              />
-            </Link>
-          </div>
-        </div>
+        </>
       )}
       {/* share dialog */}
       <Dialog

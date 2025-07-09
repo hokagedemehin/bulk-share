@@ -290,7 +290,7 @@ const SharedListPage = () => {
   return (
     <div className="px-2 pt-5">
       <section className="container mx-auto my-5">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h1 className="text-2xl font-bold">Shared Items</h1>
           <div className="flex space-x-2">
             <TextField
@@ -354,7 +354,7 @@ const SharedListPage = () => {
       </section>
       <section className="">
         {listItems.length === 0 && (
-          <section className="container mx-auto mb-4 flex h-[50vh] flex-col items-center justify-center">
+          <section className="container mx-auto mb-10 flex h-[50vh] flex-col items-center justify-center">
             <Image
               src="/emptylist1.png"
               alt="empty list"
